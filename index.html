@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Future Schooling · Plan Contentu</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -157,7 +157,7 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
 }
 
 /* ── ELA SECTION ── */
-.ela-section{margin:20px 14px 0;border:2px solid var(--green);border-radius:14px;background:var(--surface);overflow:hidden;box-shadow:0 4px 18px rgba(27,58,44,.10);}
+.ela-section{margin:20px 14px 0;max-width:calc(100vw - 28px);border:2px solid var(--green);border-radius:14px;background:var(--surface);overflow:hidden;box-shadow:0 4px 18px rgba(27,58,44,.10);}
 .ela-header{display:flex;align-items:center;gap:12px;padding:16px 18px;background:var(--green);cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
 .ela-icon{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.18);border:2px solid rgba(255,255,255,.35);color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;flex-shrink:0;font-family:Georgia,serif;}
 .ela-title{font-size:15px;font-weight:700;color:#fff;font-family:Georgia,serif;flex:1;}
@@ -165,7 +165,7 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
 .ela-chevron.open{transform:rotate(90deg);}
 .ela-body{padding:16px;display:none;background:var(--gold-light);}
 .ela-body.visible{display:block;}
-.ela-body textarea{width:100%;min-height:120px;resize:vertical;border:1px solid var(--border2);border-radius:8px;background:var(--surface);color:var(--text);font-family:inherit;font-size:13px;line-height:1.7;padding:12px 14px;outline:none;transition:border-color .15s;}
+.ela-body textarea{width:100%;max-width:100%;min-height:120px;resize:vertical;border:1px solid var(--border2);border-radius:8px;background:var(--surface);color:var(--text);font-family:inherit;font-size:13px;line-height:1.7;padding:12px 14px;outline:none;transition:border-color .15s;-webkit-box-sizing:border-box;box-sizing:border-box;}
 .ela-body textarea:focus{border-color:var(--green);}
 .ela-body textarea::placeholder{color:var(--sub);opacity:.6;}
 .ela-count{font-size:10px;color:var(--sub);text-align:right;margin-top:5px;}
