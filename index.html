@@ -406,14 +406,70 @@ body{
   display:flex;align-items:center;gap:5px;
 }
 
+/* ── MOBILE DAY PICKER ── */
+.mobile-view{display:none;}
+.mobile-day-strip{
+  display:flex;
+  overflow-x:auto;
+  gap:6px;
+  padding:10px 14px;
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  scrollbar-width:none;
+  -webkit-overflow-scrolling:touch;
+  flex-shrink:0;
+}
+.mobile-day-strip::-webkit-scrollbar{display:none;}
+.mobile-day-btn{
+  display:flex;flex-direction:column;align-items:center;
+  gap:2px;
+  min-width:44px;
+  padding:7px 8px;
+  border-radius:10px;
+  border:1.5px solid var(--border);
+  background:var(--surface);
+  cursor:pointer;
+  flex-shrink:0;
+  transition:all .15s;
+  position:relative;
+}
+.mobile-day-btn:hover{border-color:var(--green2);background:var(--green-light);}
+.mobile-day-btn.active{
+  background:var(--green);
+  border-color:var(--green);
+}
+.mobile-day-btn.has-posts::after{
+  content:'';
+  position:absolute;
+  bottom:4px;left:50%;transform:translateX(-50%);
+  width:4px;height:4px;border-radius:50%;
+  background:var(--gold);
+}
+.mobile-day-btn.active::after{background:#fff;}
+.mdb-name{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--sub);}
+.mdb-date{font-size:18px;font-weight:800;line-height:1;color:var(--text);font-variant-numeric:tabular-nums;}
+.mobile-day-btn.active .mdb-name,
+.mobile-day-btn.active .mdb-date{color:#fff;}
+
+.mobile-posts{
+  padding:12px 14px 24px;
+  flex:1;overflow-y:auto;
+}
+.mobile-day-title{
+  font-size:13px;font-weight:700;color:var(--green);
+  font-family:Georgia,serif;
+  padding:4px 0 12px;
+  border-bottom:1px solid var(--border);
+  margin-bottom:12px;
+}
+.mobile-empty{
+  text-align:center;padding:40px 20px;
+  font-size:13px;color:var(--sub);font-style:italic;opacity:.6;
+}
+
 @media(max-width:768px){
-  /* topbar — 2 rzędy */
-  .topbar{
-    height:auto;
-    padding:10px 14px;
-    flex-wrap:wrap;
-    gap:8px;
-  }
+  /* topbar compact */
+  .topbar{height:auto;padding:10px 14px;flex-wrap:wrap;gap:6px;}
   .topbar-brand{order:1;flex:1;font-size:14px;}
   .topbar-spacer{display:none;}
   .week-nav{order:2;width:100%;justify-content:center;gap:10px;}
@@ -422,41 +478,18 @@ body{
 
   /* subtitle */
   .week-sub{padding:8px 14px;flex-wrap:wrap;gap:6px;}
-  .week-theme{font-size:13px;}
-  .legend{gap:6px;}
-  .leg-chip{font-size:9px;padding:2px 7px;}
+  .week-theme{font-size:12px;}
+  .week-count-badge{font-size:10px;}
+  .legend{display:none;}
 
-  /* calendar — jeden dzień na całą szerokość */
-  .cal-wrap{padding:0 14px 24px;overflow-x:visible;}
-  .cal-grid{
-    grid-template-columns:1fr;
-    min-width:unset;
-    gap:8px;
-  }
+  /* ukryj desktop grid, pokaż mobile */
+  .cal-wrap{display:none;}
+  .mobile-view{display:flex;flex-direction:column;flex:1;overflow:hidden;}
 
-  /* ukryj puste dni na mobile */
-  .day-col.is-empty-mobile{display:none;}
-
-  /* nagłówek dnia — poziomy pasek */
-  .day-head{
-    border-radius:8px;
-    border-bottom:2px solid var(--green);
-    margin-bottom:8px;
-    display:flex;
-    align-items:center;
-    gap:8px;
-    padding:8px 12px;
-  }
-  .day-date{font-size:17px;}
-  .day-name{font-size:10px;}
-
-  /* karty postów — nieco szersze odstępy */
-  .post-card{padding:10px 12px;}
-
-  /* sekcje na dole */
-  .ela-section{margin:14px 14px 0;}
-  .week-footer{padding:10px 14px 0;flex-wrap:wrap;gap:8px;}
-  .notes-hint{font-size:10px;}
+  /* ela i footer */
+  .ela-section{margin:12px 14px 0;}
+  .week-footer{padding:8px 14px 10px;flex-wrap:wrap;gap:6px;}
+  .notes-hint{display:none;}
 }
 </style>
 
@@ -488,9 +521,15 @@ body{
   </div>
 </div>
 
-<!-- CALENDAR -->
+<!-- CALENDAR DESKTOP -->
 <div class="cal-wrap">
   <div class="cal-grid" id="calGrid"></div>
+</div>
+
+<!-- CALENDAR MOBILE -->
+<div class="mobile-view" id="mobileView">
+  <div class="mobile-day-strip" id="mobileDayStrip"></div>
+  <div class="mobile-posts" id="mobilePosts"></div>
 </div>
 
 <!-- ELA IDEAS -->
@@ -832,6 +871,7 @@ function renderWeek(wi){
   });
 
   loadEla(wi);
+  if(isMobile()) renderMobile(wi);
 }
 
 function toggleNote(btn,key){
@@ -885,6 +925,86 @@ function loadEla(wi){
   }
 }
 
+let mobileSortedDays = [];
+let mobileWeekIndex = 0;
+
+function renderMobile(wi) {
+  mobileWeekIndex = wi;
+  const week = WEEKS[wi];
+  const sorted = [...week.days].sort((a,b) => a.dow - b.dow);
+  mobileSortedDays = sorted.map(day => {
+    const extra = extraPostsForDay(day.date, day.month);
+    return { ...day, allPosts: [...day.posts, ...extra] };
+  });
+
+  // build day strip
+  const strip = document.getElementById('mobileDayStrip');
+  strip.innerHTML = mobileSortedDays.map((day, i) => {
+    const hasPosts = day.allPosts.length > 0;
+    return `<button class="mobile-day-btn${hasPosts?' has-posts':''}" onclick="selectMobileDay(${i})" id="mdb-${i}">
+      <span class="mdb-name">${DOW_NAMES[day.dow]}</span>
+      <span class="mdb-date">${day.date}</span>
+    </button>`;
+  }).join('');
+
+  // auto-select: today if in week, else first day with posts
+  let defaultIdx = mobileSortedDays.findIndex(d =>
+    today.getDate()===d.date && today.getMonth()+1===d.month
+  );
+  if(defaultIdx < 0) defaultIdx = mobileSortedDays.findIndex(d => d.allPosts.length > 0);
+  if(defaultIdx < 0) defaultIdx = 0;
+  selectMobileDay(defaultIdx);
+}
+
+function selectMobileDay(idx) {
+  // update strip active state
+  mobileSortedDays.forEach((_, i) => {
+    const btn = document.getElementById('mdb-'+i);
+    if(btn) btn.classList.toggle('active', i===idx);
+  });
+
+  const day = mobileSortedDays[idx];
+  const postsEl = document.getElementById('mobilePosts');
+
+  if(!day || day.allPosts.length === 0) {
+    postsEl.innerHTML = `<div class="mobile-day-title">${DOW_NAMES[day.dow]}, ${day.date} ${MONTH_NAMES[day.month]}</div><div class="mobile-empty">Brak postów w tym dniu</div>`;
+    return;
+  }
+
+  const wi = mobileWeekIndex;
+  let html = `<div class="mobile-day-title">${DOW_NAMES[day.dow]}, ${day.date} ${MONTH_NAMES[day.month]}</div>`;
+
+  day.allPosts.forEach((post, pi) => {
+    const key = noteKey(wi, day.date, day.month, pi);
+    const savedNote = localStorage.getItem(key) || '';
+    const hasNote = savedNote.length > 0;
+    const goalHtml = goalLabel(post.goal) ? `<span class="meta-goal">${goalLabel(post.goal)}</span>` : '';
+    const statusHtml = `<span class="meta-status ${statusClass(post.status)}">${statusLabel(post.status)}</span>`;
+    const titleClass = (!post.title||post.title==='—') ? 'post-title no-title' : 'post-title';
+    const titleText = (!post.title||post.title==='—') ? '(tytuł do ustalenia)' : post.title;
+
+    html += `<div class="post-card">
+      <div class="post-header">
+        ${post.time ? `<span class="post-time">${post.time}</span>` : ''}
+        <span class="type-chip ${typeClass(post.type)}">${post.type}</span>
+      </div>
+      <div class="${titleClass}">${titleText}</div>
+      <div class="post-meta">${goalHtml}${statusHtml}</div>
+      <button class="notes-toggle${hasNote?' open':''}" onclick="toggleNote(this,'${key}')">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        ${hasNote?'Notatki Eli ('+savedNote.length+'zn.)':'Notatki Eli'}
+      </button>
+      <div class="notes-area${hasNote?' visible':''}">
+        <textarea placeholder="Dodaj uwagi, briefing, linki…" oninput="saveNote(this,'${key}',this.closest('.post-card').querySelector('.notes-toggle'))">${savedNote}</textarea>
+      </div>
+    </div>`;
+  });
+
+  postsEl.innerHTML = html;
+}
+
+function isMobile() { return window.innerWidth <= 768; }
+
 function changeWeek(delta){
   const next=currentWeek+delta;
   if(next<0||next>=WEEKS.length) return;
@@ -900,4 +1020,9 @@ document.addEventListener('keydown',e=>{
 });
 
 renderWeek(0);
+
+// re-render mobile on resize
+window.addEventListener('resize', () => {
+  if(isMobile()) renderMobile(currentWeek);
+});
 </script>
