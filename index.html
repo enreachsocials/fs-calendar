@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Future Schooling · Plan Contentu</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 <style>
@@ -581,6 +582,7 @@ body{
   </div>
   <div class="week-dots" id="weekDots"></div>
   <div class="topbar-total">70 postów · 5 tygodni</div>
+  <div id="syncStatus" style="font-size:11px;color:rgba(255,255,255,.4);white-space:nowrap;">○ łączenie…</div>
 </div>
 
 <!-- WEEK SUBTITLE -->
@@ -636,6 +638,41 @@ body{
 </div>
 
 <script>
+// ── SUPABASE ──
+const SUPABASE_URL = 'https://ibszyymqkkhevjlmbyjb.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_5aSMj2jlROBwiRbMWOMQTA_FFfh7QLy';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+function setSyncStatus(state) {
+  const el = document.getElementById('syncStatus');
+  if (!el) return;
+  if (state === 'ok')  { el.textContent = '● zsynchronizowano'; el.style.color = '#7EB898'; }
+  if (state === 'err') { el.textContent = '○ tylko lokalnie';   el.style.color = 'rgba(255,255,255,.4)'; }
+  if (state === 'saving') { el.textContent = '↑ zapisywanie…';  el.style.color = 'rgba(255,255,255,.6)'; }
+}
+
+async function syncFromSupabase() {
+  try {
+    const { data, error } = await sb.from('fs_notes').select('key, value');
+    if (error) throw error;
+    data.forEach(({ key, value }) => localStorage.setItem(key, value));
+    setSyncStatus('ok');
+  } catch(e) {
+    setSyncStatus('err');
+  }
+}
+
+async function pushNote(key, value) {
+  setSyncStatus('saving');
+  try {
+    const { error } = await sb.from('fs_notes').upsert({ key, value });
+    if (error) throw error;
+    setSyncStatus('ok');
+  } catch(e) {
+    setSyncStatus('err');
+  }
+}
+
 const DAY_NAMES = ['Ndz','Pon','Wt','Śr','Czw','Pt','Sb'];
 const MONTH_NAMES = ['','sty','lut','mar','kwi','maj','cze','lip','sie','wrz','paź','lis','gru'];
 
@@ -966,6 +1003,7 @@ function saveNote(ta,key,toggleBtn){
   toggleBtn.innerHTML=`
     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
     ${hasNote?'Notatki Eli ('+len+'zn.)':'Notatki Eli'}`;
+  pushNote(key, ta.value);
 }
 
 function elaKey(wi){ return `fs_ela_w${wi}`; }
@@ -985,9 +1023,11 @@ function toggleEla(){
 }
 
 function saveEla(ta){
-  localStorage.setItem(elaKey(currentWeek),ta.value);
+  const key=elaKey(currentWeek);
+  localStorage.setItem(key,ta.value);
   const len=ta.value.length;
   document.getElementById('elaCharCount').textContent=len>0?len+' znaków':'';
+  pushNote(key, ta.value);
 }
 
 function loadEla(wi){
@@ -1123,7 +1163,20 @@ document.addEventListener('keydown',e=>{
   if(e.key==='ArrowLeft'&&!e.target.matches('textarea')) changeWeek(-1);
 });
 
-renderWeek(0);
+// ustal aktualny tydzień na start
+let startWeek = 0;
+const todayVal = today.getMonth()*100 + today.getDate(); // m*100+d dla porównania
+WEEKS.forEach((w, wi) => {
+  w.days.forEach(d => {
+    if(d.month === today.getMonth()+1 && d.date === today.getDate()) startWeek = wi;
+  });
+});
+
+// załaduj notatki z Supabase, potem wyrenderuj
+syncFromSupabase().finally(() => {
+  renderWeek(startWeek);
+  currentWeek = startWeek;
+});
 
 // re-render mobile on resize
 window.addEventListener('resize', () => {
