@@ -4,33 +4,20 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Future Schooling · Plan Contentu</title>
-</head>
-<body>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
 :root{
-  --bg:#F5F3EE;
-  --surface:#FFFFFF;
-  --green:#1B3A2C;
-  --green2:#2C5E42;
-  --green-light:#EAF2EC;
-  --gold:#B8892A;
-  --gold-light:#F9F3E8;
-  --text:#1A1A18;
-  --sub:#6B7060;
-  --border:#DFE3D8;
-  --border2:#C8D0C0;
-
+  --bg:#F5F3EE;--surface:#FFFFFF;--green:#1B3A2C;--green2:#2C5E42;
+  --green-light:#EAF2EC;--gold:#B8892A;--gold-light:#F9F3E8;
+  --text:#1A1A18;--sub:#6B7060;--border:#DFE3D8;--border2:#C8D0C0;
   --s-bg:#FFF8EB;--s-col:#996600;--s-br:#F0D080;
   --i-bg:#EDF8F0;--i-col:#1A6B3C;--i-br:#90D8A8;
   --r-bg:#FFF0EE;--r-col:#B52A1A;--r-br:#F0A898;
   --v-bg:#EEF2FF;--v-col:#2040A8;--v-br:#A8B8F0;
-
-  --note-bg:#FFFDF5;
-  --note-border:#E8D89A;
+  --note-bg:#FFFDF5;--note-border:#E8D89A;
+  --topbar-h:106px;
 }
-
 @media(prefers-color-scheme:dark){:root{
   --bg:#111610;--surface:#1A2018;--green:#7EB898;--green2:#5A9070;
   --green-light:#192218;--gold:#C8A860;--gold-light:#221A08;
@@ -41,1198 +28,579 @@
   --v-bg:#0A1428;--v-col:#8090E0;--v-br:#182848;
   --note-bg:#1E1C10;--note-border:#3A3418;
 }}
-:root[data-theme="light"]{
-  --bg:#F5F3EE;--surface:#FFFFFF;--green:#1B3A2C;--green2:#2C5E42;
-  --green-light:#EAF2EC;--gold:#B8892A;--gold-light:#F9F3E8;
-  --text:#1A1A18;--sub:#6B7060;--border:#DFE3D8;--border2:#C8D0C0;
-  --s-bg:#FFF8EB;--s-col:#996600;--s-br:#F0D080;
-  --i-bg:#EDF8F0;--i-col:#1A6B3C;--i-br:#90D8A8;
-  --r-bg:#FFF0EE;--r-col:#B52A1A;--r-br:#F0A898;
-  --v-bg:#EEF2FF;--v-col:#2040A8;--v-br:#A8B8F0;
-  --note-bg:#FFFDF5;--note-border:#E8D89A;
-}
-:root[data-theme="dark"]{
-  --bg:#111610;--surface:#1A2018;--green:#7EB898;--green2:#5A9070;
-  --green-light:#192218;--gold:#C8A860;--gold-light:#221A08;
-  --text:#E8EDE2;--sub:#8A9880;--border:#252E22;--border2:#303828;
-  --s-bg:#2A2008;--s-col:#D4A030;--s-br:#5A4010;
-  --i-bg:#0A2018;--i-col:#70D890;--i-br:#1A4828;
-  --r-bg:#2A1008;--r-col:#F08070;--r-br:#5A2010;
-  --v-bg:#0A1428;--v-col:#8090E0;--v-br:#182848;
-  --note-bg:#1E1C10;--note-border:#3A3418;
-}
 
-html{
-  overflow-x:clip;
-}
-body{
-  background:var(--bg);
-  color:var(--text);
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
-  font-size:13px;
-  min-height:100vh;
-  display:flex;
-  flex-direction:column;
-  width:100%;
-  max-width:100vw;
-  overflow-x:clip;
-}
+html,body{width:100%;overflow-x:hidden;}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;font-size:13px;min-height:100vh;}
 
-/* toast */
-.toast{
-  position:fixed;
-  bottom:24px;
-  left:50%;
-  transform:translateX(-50%) translateY(20px);
-  background:var(--green);
-  color:#fff;
-  font-size:14px;
-  font-weight:600;
-  padding:12px 24px;
-  border-radius:40px;
-  box-shadow:0 4px 20px rgba(0,0,0,.2);
-  opacity:0;
-  transition:opacity .2s, transform .2s;
-  pointer-events:none;
-  z-index:9999;
-  white-space:nowrap;
+/* ── TOAST ── */
+#toast{
+  position:fixed;bottom:28px;left:50%;
+  transform:translateX(-50%) translateY(14px);
+  background:var(--green);color:#fff;
+  font-size:14px;font-weight:600;
+  padding:12px 28px;border-radius:40px;
+  box-shadow:0 4px 24px rgba(0,0,0,.22);
+  opacity:0;transition:opacity .2s,transform .2s;
+  pointer-events:none;z-index:9999;white-space:nowrap;
 }
-.toast.show{
-  opacity:1;
-  transform:translateX(-50%) translateY(0);
-}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
-/* ── TOP BAR ── */
+/* ── TOPBAR ── */
 .topbar{
-  background:var(--green);
-  color:#fff;
-  padding:0 28px;
-  height:56px;
-  display:flex;
-  align-items:center;
-  gap:20px;
-  flex-shrink:0;
+  background:var(--green);color:#fff;
   position:sticky;top:0;z-index:100;
+  width:100%;
 }
-.topbar-brand{
-  font-family:Georgia,serif;
-  font-size:15px;
-  letter-spacing:.01em;
-  white-space:nowrap;
+.tb-row1{
+  display:flex;align-items:center;gap:10px;
+  height:52px;padding:0 16px;
 }
-.topbar-brand span{color:var(--gold);margin-left:6px;}
-.topbar-spacer{flex:1}
-.week-nav{
-  display:flex;align-items:center;gap:12px;
+.tb-brand{font-family:Georgia,serif;font-size:14px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.tb-brand span{color:var(--gold);}
+.tb-sync{font-size:13px;color:rgba(255,255,255,.45);flex-shrink:0;}
+.tb-row2{
+  display:flex;align-items:center;justify-content:center;
+  gap:10px;padding:6px 16px 10px;
+  border-top:1px solid rgba(255,255,255,.1);
 }
 .nav-btn{
-  background:rgba(255,255,255,.12);
-  border:1px solid rgba(255,255,255,.2);
-  color:#fff;
-  width:32px;height:32px;
-  border-radius:8px;
-  cursor:pointer;
+  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);
+  color:#fff;width:36px;height:36px;border-radius:8px;
+  cursor:pointer;font-size:18px;
   display:flex;align-items:center;justify-content:center;
-  font-size:16px;
-  transition:background .15s;
-  flex-shrink:0;
+  flex-shrink:0;-webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;
 }
-.nav-btn:hover{background:rgba(255,255,255,.22);}
 .nav-btn:disabled{opacity:.3;cursor:default;}
-.week-label{
-  font-size:13px;
-  font-weight:600;
-  color:#fff;
-  white-space:nowrap;
-  min-width:200px;
-  text-align:center;
-}
-.week-dots{
-  display:flex;gap:6px;align-items:center;
-}
+.week-label{font-size:13px;font-weight:700;color:#fff;flex:1;text-align:center;min-width:0;}
+.week-dots{display:flex;gap:6px;align-items:center;}
 .week-dot{
   width:7px;height:7px;border-radius:50%;
-  background:rgba(255,255,255,.25);
-  cursor:pointer;transition:background .15s, transform .15s;
+  background:rgba(255,255,255,.25);cursor:pointer;
+  transition:background .15s,transform .15s;
+  -webkit-tap-highlight-color:transparent;
 }
 .week-dot.active{background:var(--gold);transform:scale(1.3);}
-.topbar-total{
-  font-size:12px;
-  color:rgba(255,255,255,.5);
-  white-space:nowrap;
-}
+
+/* desktop nav — hidden on mobile */
+.tb-desktop-nav{display:none;align-items:center;gap:10px;}
 
 /* ── WEEK SUBTITLE ── */
 .week-sub{
-  background:var(--gold-light);
-  border-bottom:1px solid var(--border);
-  padding:8px 28px;
-  display:flex;align-items:center;gap:16px;
-  flex-shrink:0;
+  background:var(--gold-light);border-bottom:1px solid var(--border);
+  padding:9px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;
 }
-.week-theme{
-  font-family:Georgia,serif;
-  font-size:14px;
-  color:var(--green);
-}
-.week-count-badge{
-  font-size:11px;
-  color:var(--gold);
-  background:rgba(184,137,42,.12);
-  border:1px solid rgba(184,137,42,.3);
-  padding:2px 10px;border-radius:99px;
-  font-weight:600;
-}
-.week-sub-spacer{flex:1}
-.legend{
-  display:flex;gap:10px;align-items:center;flex-wrap:wrap;
-}
-.leg-chip{
-  font-size:10px;font-weight:700;letter-spacing:.06em;
-  padding:2px 9px;border-radius:99px;border:1px solid;
-}
-.lc-s{background:var(--s-bg);color:var(--s-col);border-color:var(--s-br);}
-.lc-i{background:var(--i-bg);color:var(--i-col);border-color:var(--i-br);}
-.lc-r{background:var(--r-bg);color:var(--r-col);border-color:var(--r-br);}
-.lc-v{background:var(--v-bg);color:var(--v-col);border-color:var(--v-br);}
-
-/* ── CALENDAR GRID ── */
-.cal-wrap{
-  flex:1;
-  overflow-x:auto;
-  padding:0 28px 32px;
-}
-.cal-grid{
-  display:grid;
-  grid-template-columns:repeat(7,minmax(148px,1fr));
-  gap:10px;
-  min-width:900px;
-  padding-top:14px;
+.week-theme{font-family:Georgia,serif;font-size:13px;color:var(--green);flex:1;min-width:0;}
+.week-badge{
+  font-size:11px;color:var(--gold);
+  background:rgba(184,137,42,.12);border:1px solid rgba(184,137,42,.3);
+  padding:2px 10px;border-radius:99px;font-weight:600;white-space:nowrap;flex-shrink:0;
 }
 
-/* ── DAY COLUMN ── */
-.day-col{}
-.day-head{
-  padding:8px 10px 10px;
-  border-radius:10px 10px 0 0;
-  border:1px solid var(--border);
-  border-bottom:2px solid var(--green);
-  background:var(--surface);
-  margin-bottom:6px;
-  display:flex;align-items:baseline;gap:7px;
-}
-.day-head.empty-head{
-  border-bottom-color:var(--border2);
-  opacity:.5;
-}
-.day-name{
-  font-size:11px;
-  text-transform:uppercase;
-  letter-spacing:.1em;
-  color:var(--sub);
-  font-weight:600;
-}
-.day-date{
-  font-size:20px;
-  font-weight:700;
-  color:var(--text);
-  font-variant-numeric:tabular-nums;
-  line-height:1;
-}
-.day-month{
-  font-size:11px;
-  color:var(--sub);
-}
-.day-today .day-head{
-  border-bottom-color:var(--gold);
-  background:var(--gold-light);
-}
-.day-today .day-date{color:var(--gold);}
-
-/* ── POST CARD ── */
-.post-card{
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:8px;
-  padding:10px;
-  margin-bottom:6px;
-  transition:box-shadow .15s;
-}
-.post-card:hover{box-shadow:0 2px 10px rgba(0,0,0,.07);}
-
-.post-header{
-  display:flex;align-items:center;gap:7px;
-  margin-bottom:7px;
-  flex-wrap:wrap;
-}
-.post-time{
-  font-size:11px;color:var(--sub);
-  font-variant-numeric:tabular-nums;
-  flex-shrink:0;
-}
-.type-chip{
-  font-size:10px;font-weight:700;letter-spacing:.06em;
-  padding:2px 8px;border-radius:99px;border:1px solid;
-  flex-shrink:0;
-}
-.tc-story{background:var(--s-bg);color:var(--s-col);border-color:var(--s-br);}
-.tc-image{background:var(--i-bg);color:var(--i-col);border-color:var(--i-br);}
-.tc-reel {background:var(--r-bg);color:var(--r-col);border-color:var(--r-br);}
-.tc-video{background:var(--v-bg);color:var(--v-col);border-color:var(--v-br);}
+/* ── TYPE / STATUS CHIPS ── */
+.type-chip{font-size:10px;font-weight:700;letter-spacing:.06em;padding:2px 8px;border-radius:99px;border:1px solid;white-space:nowrap;flex-shrink:0;}
+.tc-story   {background:var(--s-bg);color:var(--s-col);border-color:var(--s-br);}
+.tc-image   {background:var(--i-bg);color:var(--i-col);border-color:var(--i-br);}
+.tc-reel    {background:var(--r-bg);color:var(--r-col);border-color:var(--r-br);}
+.tc-video   {background:var(--v-bg);color:var(--v-col);border-color:var(--v-br);}
 .tc-kampania{background:#FEF0E6;color:#B04010;border-color:#F0B888;}
 .tc-nagrywka{background:#F0EEFF;color:#4030A0;border-color:#B8A8F0;}
-
-.post-title{
-  font-size:12px;line-height:1.4;
-  color:var(--text);
-  font-weight:500;
-  margin-bottom:6px;
-}
-.post-title.no-title{color:var(--sub);font-style:italic;}
-
-.post-meta{
-  display:flex;gap:6px;flex-wrap:wrap;align-items:center;
-  margin-bottom:8px;
-}
-.meta-goal{
-  font-size:10px;padding:1px 7px;border-radius:99px;
-  background:var(--green-light);color:var(--green2);
-  font-weight:500;
-}
-.meta-status{
-  font-size:10px;padding:1px 7px;border-radius:99px;
-  font-weight:600;
-}
+.meta-status{font-size:10px;padding:1px 7px;border-radius:99px;font-weight:600;white-space:nowrap;}
 .ms-draft   {background:#F0F0EC;color:#7A7A70;}
 .ms-approved{background:#DCF8E8;color:#1A6A30;}
 .ms-revision{background:#FEF8D0;color:#8A5800;}
 .ms-aktywna {background:#DCF8E8;color:#1A6A30;font-weight:700;}
+.meta-goal  {font-size:10px;padding:1px 7px;border-radius:99px;background:var(--green-light);color:var(--green2);font-weight:500;white-space:nowrap;}
+
+/* ── POST CARD ── */
+.post-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:10px;padding:12px;margin-bottom:8px;
+  width:100%;
+}
+.post-header{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px;}
+.post-time{font-size:11px;color:var(--sub);font-variant-numeric:tabular-nums;}
+.post-title{
+  font-size:13px;line-height:1.45;color:var(--text);font-weight:500;
+  margin-bottom:7px;overflow-wrap:break-word;word-break:break-word;
+}
+.post-title.empty{color:var(--sub);font-style:italic;}
+.post-meta{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:8px;}
 
 /* ── NOTES ── */
 .notes-toggle{
   display:flex;align-items:center;gap:5px;
-  font-size:11px;color:var(--sub);
-  cursor:pointer;
-  padding:3px 0;
-  user-select:none;
-  border:none;background:none;
-  font-family:inherit;
-  transition:color .15s;
+  font-size:11px;color:var(--sub);cursor:pointer;
+  padding:3px 0;user-select:none;
+  border:none;background:none;font-family:inherit;
+  transition:color .15s;-webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;
 }
-.notes-toggle:hover{color:var(--green);}
-.notes-toggle svg{transition:transform .2s;}
+.notes-toggle svg{transition:transform .2s;flex-shrink:0;}
 .notes-toggle.open svg{transform:rotate(90deg);}
-.notes-area{
-  display:none;
-  margin-top:7px;
-}
+.notes-area{display:none;margin-top:7px;}
 .notes-area.visible{display:block;}
 .notes-area textarea{
-  width:100%;
-  min-height:56px;
-  resize:vertical;
-  border:1px solid var(--note-border);
-  border-radius:6px;
-  background:var(--note-bg);
-  color:var(--text);
-  font-family:inherit;
-  font-size:12px;
-  line-height:1.4;
-  padding:7px 9px;
-  outline:none;
-  transition:border-color .15s;
+  width:100%;min-height:60px;resize:vertical;
+  border:1px solid var(--note-border);border-radius:6px;
+  background:var(--note-bg);color:var(--text);
+  font-family:inherit;font-size:13px;line-height:1.5;
+  padding:8px 10px;outline:none;transition:border-color .15s;
 }
 .notes-area textarea:focus{border-color:var(--gold);}
 .notes-area textarea::placeholder{color:var(--sub);opacity:.6;}
-
-/* ── ELA IDEAS SECTION ── */
-.ela-section{
-  margin:24px 28px 0;
-  border:2px solid var(--green);
-  border-radius:14px;
-  background:var(--surface);
-  overflow:hidden;
-  box-shadow:0 4px 18px rgba(27,58,44,.10);
-}
-.ela-header{
-  display:flex;align-items:center;gap:12px;
-  padding:16px 20px;
-  background:var(--green);
-  cursor:pointer;
-  user-select:none;
-  transition:opacity .15s;
-}
-.ela-header:hover{opacity:.92;}
-.ela-icon{
-  width:36px;height:36px;border-radius:50%;
-  background:rgba(255,255,255,.18);
-  border:2px solid rgba(255,255,255,.35);
-  color:#fff;
-  display:flex;align-items:center;justify-content:center;
-  font-size:15px;font-weight:800;
-  flex-shrink:0;
-  font-family:Georgia,serif;
-}
-.ela-title{
-  font-size:15px;font-weight:700;
-  color:#fff;
-  font-family:Georgia,serif;
-  flex:1;
-  letter-spacing:.01em;
-}
-.ela-hint{font-size:11px;color:rgba(255,255,255,.65);white-space:nowrap;}
-.ela-chevron{
-  color:rgba(255,255,255,.8);
-  transition:transform .2s;
-}
-.ela-chevron.open{transform:rotate(90deg);}
-.ela-body{
-  padding:18px 20px;
-  display:none;
-  background:var(--gold-light);
-  border-top:1px solid var(--border);
-}
-.ela-body.visible{display:block;}
-.ela-body textarea{
-  width:100%;
-  min-height:140px;
-  resize:vertical;
-  border:1px solid var(--border2);
-  border-radius:8px;
-  background:var(--surface);
-  color:var(--text);
-  font-family:inherit;
-  font-size:13px;
-  line-height:1.7;
-  padding:12px 14px;
-  outline:none;
-  transition:border-color .15s, box-shadow .15s;
-}
-.ela-body textarea:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(27,58,44,.08);}
-.ela-body textarea::placeholder{color:var(--sub);opacity:.6;}
-.ela-char-count{
-  font-size:10px;color:var(--sub);
-  text-align:right;
-  margin-top:6px;
-}
 .done-btn{
-  display:none;
-  margin-top:10px;
-  width:100%;
-  padding:10px;
-  background:var(--green);
-  color:#fff;
-  border:none;
-  border-radius:8px;
-  font-size:14px;
-  font-weight:700;
-  cursor:pointer;
-}
-@media(max-width:768px){
-  .done-btn{display:block;}
+  display:block;width:100%;margin-top:8px;padding:12px;
+  background:var(--green);color:#fff;border:none;border-radius:8px;
+  font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;
 }
 
+/* ── ELA SECTION ── */
+.ela-section{margin:20px 14px 0;border:2px solid var(--green);border-radius:14px;background:var(--surface);overflow:hidden;box-shadow:0 4px 18px rgba(27,58,44,.10);}
+.ela-header{display:flex;align-items:center;gap:12px;padding:16px 18px;background:var(--green);cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
+.ela-icon{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.18);border:2px solid rgba(255,255,255,.35);color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;flex-shrink:0;font-family:Georgia,serif;}
+.ela-title{font-size:15px;font-weight:700;color:#fff;font-family:Georgia,serif;flex:1;}
+.ela-chevron{color:rgba(255,255,255,.8);transition:transform .2s;flex-shrink:0;}
+.ela-chevron.open{transform:rotate(90deg);}
+.ela-body{padding:16px;display:none;background:var(--gold-light);}
+.ela-body.visible{display:block;}
+.ela-body textarea{width:100%;min-height:120px;resize:vertical;border:1px solid var(--border2);border-radius:8px;background:var(--surface);color:var(--text);font-family:inherit;font-size:13px;line-height:1.7;padding:12px 14px;outline:none;transition:border-color .15s;}
+.ela-body textarea:focus{border-color:var(--green);}
+.ela-body textarea::placeholder{color:var(--sub);opacity:.6;}
+.ela-count{font-size:10px;color:var(--sub);text-align:right;margin-top:5px;}
 
-/* ── EMPTY DAY ── */
-.empty-day-msg{
-  font-size:11px;color:var(--sub);
-  padding:12px 10px;
-  text-align:center;
-  opacity:.5;
-  font-style:italic;
-}
+/* ── FOOTER ── */
+.week-footer{padding:14px 16px 40px;font-size:11px;color:var(--sub);text-align:center;}
 
-/* ── WEEK PROGRESS ── */
-.week-footer{
-  padding:10px 28px 0;
-  display:flex;gap:16px;align-items:center;
-  border-top:1px solid var(--border);
-  background:var(--surface);
-  flex-shrink:0;
-}
-.wf-stat{font-size:11px;color:var(--sub);}
-.wf-stat strong{color:var(--text);}
-.wf-spacer{flex:1}
-.notes-hint{
-  font-size:11px;color:var(--sub);
-  display:flex;align-items:center;gap:5px;
-}
+/* ══════════════════
+   MOBILE (base)
+══════════════════ */
 
-/* ── MOBILE DAY PICKER ── */
-.mobile-view{display:none;}
-
-.mobile-day-strip{
-  display:grid;
-  grid-template-columns:repeat(7,1fr);
-  gap:4px;
-  padding:10px 12px;
-  background:var(--surface);
+/* Day strip — CSS grid, all 7 fit */
+.day-strip{
+  display:grid;grid-template-columns:repeat(7,1fr);gap:3px;
+  padding:8px 10px;background:var(--surface);
   border-bottom:2px solid var(--border);
-  position:sticky;
-  top:0;
-  z-index:50;
+  position:sticky;top:106px;z-index:50;
 }
+.day-btn{
+  display:flex;flex-direction:column;align-items:center;gap:1px;
+  padding:6px 2px 9px;border-radius:8px;
+  border:1.5px solid var(--border);background:var(--surface);
+  cursor:pointer;transition:all .12s;position:relative;
+  min-width:0;-webkit-tap-highlight-color:transparent;touch-action:manipulation;
+}
+.day-btn.active{background:var(--green);border-color:var(--green);}
+.day-btn.has-posts::after{content:'';position:absolute;bottom:3px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:var(--gold);}
+.day-btn.active::after{background:rgba(255,255,255,.7);}
+.dbn{font-size:9px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;color:var(--sub);}
+.dbd{font-size:17px;font-weight:800;line-height:1;color:var(--text);font-variant-numeric:tabular-nums;}
+.day-btn.active .dbn,.day-btn.active .dbd{color:#fff;}
 
-.mobile-day-btn{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:2px;
-  padding:7px 2px 10px;
-  border-radius:10px;
-  border:1.5px solid var(--border);
-  background:var(--surface);
-  cursor:pointer;
-  transition:all .15s;
-  position:relative;
-  min-width:0;
+/* Posts area */
+.posts-area{padding:14px 14px 16px;}
+.day-nav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:14px;}
+.day-nav-title{font-size:15px;font-weight:700;color:var(--green);font-family:Georgia,serif;text-align:center;flex:1;min-width:0;}
+.day-nav-btn{
+  background:var(--surface);border:1px solid var(--border);
+  color:var(--text);width:38px;height:38px;border-radius:8px;
+  font-size:18px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;
 }
-.mobile-day-btn.active{
-  background:var(--green);
-  border-color:var(--green);
-}
-.mobile-day-btn.has-posts::after{
-  content:'';
-  position:absolute;
-  bottom:4px;left:50%;transform:translateX(-50%);
-  width:4px;height:4px;border-radius:50%;
-  background:var(--gold);
-}
-.mobile-day-btn.active::after{background:rgba(255,255,255,.7);}
-.mdb-name{
-  font-size:9px;font-weight:700;letter-spacing:.04em;
-  text-transform:uppercase;color:var(--sub);
-}
-.mdb-date{
-  font-size:18px;font-weight:800;line-height:1;
-  color:var(--text);font-variant-numeric:tabular-nums;
-}
-.mobile-day-btn.active .mdb-name,
-.mobile-day-btn.active .mdb-date{color:#fff;}
+.day-nav-btn:disabled{opacity:.25;cursor:default;}
+.day-empty{text-align:center;padding:40px 20px;font-size:14px;color:var(--sub);font-style:italic;}
 
-.mobile-posts{
-  padding:14px 14px 32px;
-  overflow-x:hidden;
-}
-.mobile-day-title{
-  font-size:15px;font-weight:700;color:var(--green);
-  font-family:Georgia,serif;
-  padding-bottom:12px;
-  border-bottom:1px solid var(--border);
-  margin-bottom:14px;
-}
-.mobile-day-nav{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  margin-bottom:16px;
-}
-.mobile-day-nav-btn{
-  background:var(--surface);
-  border:1px solid var(--border);
-  color:var(--text);
-  width:36px;height:36px;
-  border-radius:8px;
-  font-size:16px;
-  cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  flex-shrink:0;
-}
-.mobile-day-nav-btn:disabled{opacity:.25;cursor:default;}
-.mobile-empty{
-  text-align:center;padding:48px 20px;
-  font-size:14px;color:var(--sub);font-style:italic;
-}
+/* Desktop grid — hidden on mobile */
+.desktop-wrap{display:none;}
 
-@media(max-width:768px){
-  /* topbar — 2 rzędy */
-  .topbar{
-    height:auto;
-    padding:10px 16px;
-    flex-wrap:wrap;
-    gap:8px;
-    position:sticky;top:0;z-index:100;
-    width:100%;
-    max-width:100vw;
-    box-sizing:border-box;
-  }
-  .topbar-brand{order:1;flex:1;font-size:14px;min-width:0;}
-  .topbar-spacer{display:none;}
-  .week-nav{order:2;width:100%;justify-content:center;gap:10px;}
-  .week-label{min-width:0;font-size:13px;font-weight:700;}
-  .week-dots,.topbar-total,#syncStatus{display:none;}
+/* ══════════════════
+   DESKTOP
+══════════════════ */
+@media(min-width:769px){
+  :root{--topbar-h:56px;}
+
+  /* Topbar — single row */
+  .tb-row2{display:none;}
+  .tb-row1{padding:0 28px;height:56px;}
+  .tb-brand{font-size:15px;}
+  .tb-desktop-nav{display:flex;}
 
   /* subtitle */
-  .week-sub{padding:8px 16px;flex-wrap:wrap;gap:6px;}
-  .week-theme{font-size:12px;}
-  .week-count-badge{font-size:10px;}
-  .legend{display:none;}
+  .week-sub{padding:9px 28px;}
 
-  /* ukryj desktop grid — pokaż mobile view */
-  .cal-wrap{display:none;}
-  .mobile-view{display:block;max-width:100vw;overflow-x:hidden;}
+  /* hide mobile UI */
+  .day-strip{display:none;}
+  .posts-area{display:none;}
 
-  /* karty postów — brak overflow */
-  .mobile-posts .post-card{
-    max-width:100%;
-    overflow:hidden;
-  }
-  .mobile-posts .post-title{
-    overflow-wrap:break-word;
-    word-break:break-word;
-    white-space:normal;
-  }
-  .mobile-posts .post-header{
-    flex-wrap:wrap;
-    gap:5px;
-  }
-  .mobile-posts .notes-area textarea{
-    max-width:100%;
-    box-sizing:border-box;
-  }
+  /* show desktop grid */
+  .desktop-wrap{display:block;overflow-x:auto;padding:0 28px 32px;}
+  .desktop-grid{display:grid;grid-template-columns:repeat(7,minmax(138px,1fr));gap:10px;min-width:880px;padding-top:14px;}
 
-  /* ela i footer */
-  .ela-section{margin:16px 14px 0;}
-  .ela-header{padding:14px 16px;}
-  .ela-body{padding:14px 16px;}
-  .week-footer{padding:10px 16px 16px;flex-wrap:wrap;gap:6px;}
-  .notes-hint{display:none;}
+  .day-head{padding:8px 10px 10px;border-radius:10px 10px 0 0;border:1px solid var(--border);border-bottom:2px solid var(--green);background:var(--surface);margin-bottom:6px;display:flex;align-items:baseline;gap:6px;}
+  .day-head.empty-h{border-bottom-color:var(--border2);opacity:.5;}
+  .day-head.today-h{border-bottom-color:var(--gold);background:var(--gold-light);}
+  .dh-name{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--sub);font-weight:600;}
+  .dh-date{font-size:20px;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums;line-height:1;}
+  .dh-date.today-d{color:var(--gold);}
+  .dh-month{font-size:10px;color:var(--sub);}
+  .empty-day-msg{font-size:11px;color:var(--sub);padding:12px 10px;text-align:center;opacity:.5;font-style:italic;}
+
+  /* ela */
+  .ela-section{margin:24px 28px 0;}
+  .week-footer{padding:14px 28px 36px;text-align:left;}
+
+  /* hide done-btn on desktop */
+  .done-btn{display:none;}
 }
 </style>
+</head>
+<body>
 
-<!-- TOP BAR -->
+<div id="toast"></div>
+
+<!-- TOPBAR -->
 <div class="topbar">
-  <div class="topbar-brand">Future Schooling <span>· Plan Contentu</span></div>
-  <div class="topbar-spacer"></div>
-  <div class="week-nav">
-    <button class="nav-btn" id="prevBtn" onclick="changeWeek(-1)" title="Poprzedni tydzień">&#8592;</button>
-    <div class="week-label" id="weekLabel"></div>
-    <button class="nav-btn" id="nextBtn" onclick="changeWeek(1)" title="Następny tydzień">&#8594;</button>
+  <div class="tb-row1">
+    <div class="tb-brand">Future Schooling <span>· Plan Contentu</span></div>
+    <!-- desktop nav (shown via CSS) -->
+    <div class="tb-desktop-nav" id="desktopNav">
+      <button class="nav-btn" id="prevBtnD" onclick="changeWeek(-1)">&#8592;</button>
+      <div class="week-label" id="weekLabelD"></div>
+      <button class="nav-btn" id="nextBtnD" onclick="changeWeek(1)">&#8594;</button>
+      <div class="week-dots" id="weekDotsD"></div>
+    </div>
+    <div class="tb-sync" id="syncStatus">○</div>
   </div>
-  <div class="week-dots" id="weekDots"></div>
-  <div class="topbar-total">70 postów · 5 tygodni</div>
-  <div id="syncStatus" style="font-size:11px;color:rgba(255,255,255,.4);white-space:nowrap;">○ łączenie…</div>
+  <!-- mobile nav row -->
+  <div class="tb-row2">
+    <button class="nav-btn" id="prevBtnM" onclick="changeWeek(-1)">&#8592;</button>
+    <div class="week-label" id="weekLabelM"></div>
+    <button class="nav-btn" id="nextBtnM" onclick="changeWeek(1)">&#8594;</button>
+    <div class="week-dots" id="weekDotsM"></div>
+  </div>
 </div>
 
 <!-- WEEK SUBTITLE -->
 <div class="week-sub">
   <span class="week-theme" id="weekTheme"></span>
-  <span class="week-count-badge" id="weekCountBadge"></span>
-  <div class="week-sub-spacer"></div>
-  <div class="legend">
-    <span class="leg-chip lc-s">Story</span>
-    <span class="leg-chip lc-i">Image</span>
-    <span class="leg-chip lc-r">Reel</span>
-    <span class="leg-chip lc-v">Video</span>
-    <span class="leg-chip" style="background:#FEF0E6;color:#B04010;border-color:#F0B888;">Kampania</span>
-    <span class="leg-chip" style="background:#F0EEFF;color:#4030A0;border-color:#B8A8F0;">Nagrywka</span>
-  </div>
+  <span class="week-badge" id="weekBadge"></span>
 </div>
 
-<!-- CALENDAR DESKTOP -->
-<div class="cal-wrap">
-  <div class="cal-grid" id="calGrid"></div>
+<!-- MOBILE -->
+<div class="day-strip" id="dayStrip"></div>
+<div class="posts-area" id="postsArea"></div>
+
+<!-- DESKTOP -->
+<div class="desktop-wrap">
+  <div class="desktop-grid" id="desktopGrid"></div>
 </div>
 
-<!-- CALENDAR MOBILE -->
-<div class="mobile-view" id="mobileView">
-  <div class="mobile-day-strip" id="mobileDayStrip"></div>
-  <div class="mobile-posts" id="mobilePosts"></div>
-</div>
-
-<!-- TOAST -->
-<div class="toast" id="toast"></div>
-
-<!-- ELA IDEAS -->
-<div class="ela-section" id="elaSection">
+<!-- ELA -->
+<div class="ela-section">
   <div class="ela-header" onclick="toggleEla()">
     <div class="ela-icon">E</div>
     <div class="ela-title">Ela — pomysły na content</div>
-    <div class="ela-hint" id="elaHint">kliknij, żeby rozwinąć</div>
-    <svg class="ela-chevron" id="elaChevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+    <svg class="ela-chevron" id="elaChev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
   </div>
   <div class="ela-body" id="elaBody">
-    <textarea id="elaTextarea" placeholder="Wpisz tutaj swoje pomysły na content, inspiracje, obserwacje, pytania od obserwatorów — cokolwiek chcesz przekazać…" oninput="saveEla(this)"></textarea>
-    <div class="ela-char-count" id="elaCharCount"></div>
-    <button class="done-btn" onclick="document.getElementById('elaTextarea').blur()">✓ Gotowe — zapisano</button>
+    <textarea id="elaTa" placeholder="Wpisz tutaj swoje pomysły na content, inspiracje, obserwacje, pytania od obserwatorów — cokolwiek chcesz przekazać…" oninput="saveEla(this)"></textarea>
+    <div class="ela-count" id="elaCount"></div>
+    <button class="done-btn" onclick="document.getElementById('elaTa').blur();showToast('✓ Zapisano!')">✓ Gotowe — zapisano</button>
   </div>
 </div>
 
-
-<!-- FOOTER -->
-<div class="week-footer">
-  <div class="wf-stat" id="wfStat"></div>
-  <div class="wf-spacer"></div>
-  <div class="notes-hint">
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-    Kliknij "Notatki Eli" przy dowolnym poście, żeby dodać uwagi — zapisują się automatycznie
-  </div>
-</div>
+<div class="week-footer" id="weekFooter"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-// ── TOAST ──
-let toastTimer;
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 2000);
+/* ── TOAST ── */
+let _tt;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('show'),2200);
 }
 
-// ── SUPABASE ──
-let sb = null;
-try {
-  sb = window.supabase.createClient(
-    'https://ibszyymqkkhevjlmbyjb.supabase.co',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlic3p5eW1xa2toZXZqbG1ieWpiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ1NTE1NDIsImV4cCI6MjEwMDEyNzU0Mn0._cFO9Cu_cGiYMLDSEc-ZehDH_VYgY1bhkgUtO8wRx3Q'
-  );
-} catch(e) { console.warn('Supabase niedostępny:', e); }
+/* ── SUPABASE ── */
+let sb=null;
+try{ sb=window.supabase.createClient(
+  'https://ibszyymqkkhevjlmbyjb.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlic3p5eW1xa2toZXZqbG1ieWpiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ1NTE1NDIsImV4cCI6MjEwMDEyNzU0Mn0._cFO9Cu_cGiYMLDSEc-ZehDH_VYgY1bhkgUtO8wRx3Q'
+);}catch(e){}
 
-function setSyncStatus(state) {
-  const el = document.getElementById('syncStatus');
-  if (!el) return;
-  if (state === 'ok')     { el.textContent = '● zsynchronizowano'; el.style.color = '#7EB898'; }
-  if (state === 'err')    { el.textContent = '○ tylko lokalnie';   el.style.color = 'rgba(255,255,255,.4)'; }
-  if (state === 'saving') { el.textContent = '↑ zapisywanie…';     el.style.color = 'rgba(255,255,255,.6)'; }
+function setSync(s){
+  const el=document.getElementById('syncStatus');if(!el)return;
+  el.textContent=s==='ok'?'●':s==='sync'?'↑':'○';
+  el.style.color=s==='ok'?'#7EB898':s==='sync'?'rgba(255,255,255,.7)':'rgba(255,255,255,.4)';
+}
+async function sbLoad(){
+  if(!sb)return;
+  try{const{data}=await sb.from('fs_notes').select('key,value');
+    if(data)data.forEach(r=>localStorage.setItem(r.key,r.value));setSync('ok');}
+  catch{setSync('err');}
+}
+async function sbSave(key,value){
+  if(!sb)return;setSync('sync');
+  try{await sb.from('fs_notes').upsert({key,value});setSync('ok');}
+  catch{setSync('err');}
 }
 
-async function syncFromSupabase() {
-  if (!sb) return;
-  try {
-    const { data, error } = await sb.from('fs_notes').select('key, value');
-    if (error) throw error;
-    data.forEach(({ key, value }) => localStorage.setItem(key, value));
-    setSyncStatus('ok');
-  } catch(e) {
-    setSyncStatus('err');
-  }
-}
+/* ── DATA ── */
+const DOW=['Pon','Wt','Śr','Czw','Pt','Sb','Ndz'];
+const MON=['','sty','lut','mar','kwi','maj','cze','lip','sie','wrz','paź','lis','gru'];
+function dow(y,m,d){const j=new Date(y,m-1,d).getDay();return j===0?6:j-1;}
+function mk(date,month,posts){return{date,month,dow:dow(2026,month,date),posts};}
 
-async function pushNote(key, value) {
-  if (!sb) return;
-  setSyncStatus('saving');
-  try {
-    const { error } = await sb.from('fs_notes').upsert({ key, value });
-    if (error) throw error;
-    setSyncStatus('ok');
-  } catch(e) {
-    setSyncStatus('err');
-  }
-}
-
-const DAY_NAMES = ['Ndz','Pon','Wt','Śr','Czw','Pt','Sb'];
-const MONTH_NAMES = ['','sty','lut','mar','kwi','maj','cze','lip','sie','wrz','paź','lis','gru'];
-
-// DOW computed automatically from actual date — no manual dow needed
-function makeDow(year, month, date) {
-  const js = new Date(year, month-1, date).getDay(); // 0=Sun
-  return js === 0 ? 6 : js - 1; // convert to Mon=0..Sun=6
-}
-function d(date, month, posts) {
-  return { date, month, dow: makeDow(2026, month, date), posts };
-}
-
-const WEEKS = [
-  {
-    label:'Tydzień 1 · 13–19 lipca',
-    theme:'Summer Camp — Turnus I',
-    days:[
-      d(13,7,[
-        {time:'09:00',type:'Story',title:'Summer Camp — sneak peek',goal:'wizerunkowe',status:'Needs Revision'},
-        {time:'12:00',type:'Story',title:'Aktywności Summer Camp — relacja',goal:'wizerunkowe',status:'Approved'},
-      ]),
-      d(14,7,[
-        {time:'10:00',type:'Image',title:'FSC — aktualne zdjęcia z aktywności',goal:'wizerunkowe',status:'Draft'},
-        {time:'18:00',type:'Story',title:'Dzień na Summer Camp — snaps',goal:'wizerunkowe',status:'Draft'},
-      ]),
-      d(15,7,[
-        {time:'10:00',type:'Image',title:'FSC — aktualne zdjęcia z aktywności',goal:'angażujące',status:'Draft'},
-        {time:'12:00',type:'Story',title:'Zapisy do szkoły — link w bio',goal:'rekrutacja',status:'Draft'},
-        {time:'16:00',type:'Story',title:'Zajęcia survival — snaps',goal:'wizerunkowe',status:'Draft'},
-      ]),
-      d(16,7,[
-        {time:'10:00',type:'Reel',title:'Rolka — survival w lesie',goal:'angażujące',status:'Draft'},
-        {time:'17:00',type:'Story',title:'Dzień na Summer Camp — snaps',goal:'wizerunkowe',status:'Draft'},
-      ]),
-      d(17,7,[
-        {time:'10:00',type:'Video',title:'Podsumowanie dni + CTA Turnus II',goal:'angażujące',status:'Draft'},
-        {time:'17:00',type:'Story',title:'Dzień na Summer Camp — snaps',goal:'wizerunkowe',status:'Draft'},
-      ]),
-      d(18,7,[
-        {time:'10:00',type:'Story',title:'(do uzupełnienia)',goal:'—',status:'Draft'},
-        {time:'11:00',type:'Story',title:'Szkolenie kadry — za kulisami',goal:'wizerunkowe',status:'Draft'},
-      ]),
-      d(19,7,[
-        {time:'12:00',type:'Story',title:'Szkolenie Freinet — wrap up',goal:'wizerunkowe',status:'Draft'},
-      ]),
-    ]
-  },
-  {
-    label:'Tydzień 2 · 20–26 lipca',
-    theme:'Po Turnusie I · Szkolenia nauczycieli',
-    days:[
-      d(20,7,[
-        {time:'10:00',type:'Reel',title:'Podsumowanie Turnus I + CTA Turnus II',goal:'angażujące',status:'Draft'},
-        {time:'10:00',type:'Story',title:'Ostatnia rolka',goal:'—',status:'Draft'},
-      ]),
-      d(21,7,[
-        {time:'10:00',type:'Image',title:'Szkolenie Kędra — podsumowanie',goal:'rekrutacja',status:'Draft'},
-        {time:'10:00',type:'Story',title:'Promo + link do zapisów — szkoła',goal:'rekrutacja',status:'Draft'},
-      ]),
-      d(22,7,[
-        {time:'10:00',type:'Story',title:'Ostatnia rolka',goal:'—',status:'Draft'},
-        {time:'10:00',type:'Story',title:'Pytania o FS — story',goal:'angażujące',status:'Draft'},
-      ]),
-      d(23,7,[
-        {time:'10:00',type:'Reel',title:'Szkolenie nauczycieli — metoda Freineta',goal:'wizerunkowe',status:'Draft'},
-        {time:'10:00',type:'Story',title:'Rolka Robert',goal:'—',status:'Draft'},
-      ]),
-      d(24,7,[
-        {time:'10:00',type:'Video',title:'Przedstawiamy nauczyciela — SAMYE',goal:'angażujące',status:'Draft'},
-      ]),
-      d(25,7,[
-        {time:'10:00',type:'Story',title:'Promo + link do zapisów — szkoła',goal:'rekrutacja',status:'Draft'},
-      ]),
-      d(26,7,[]),
-    ]
-  },
-  {
-    label:'Tydzień 3 · 27 lip – 2 sie',
-    theme:'Turnus II · Summer Camp',
-    days:[
-      d(27,7,[
-        {time:'10:00',type:'Reel',title:'Przedstawiamy nauczyciela — Karolina',goal:'wizerunkowe',status:'Draft'},
-        {time:'18:00',type:'Story',title:'Turnus II — dzień 1, relacja na żywo',goal:'wizerunkowe',status:'Draft'},
-      ]),
-      d(28,7,[
-        {time:'17:00',type:'Image',title:'Dwujęzyczność — fakty i mity',goal:'angażujące',status:'Draft'},
-      ]),
-      d(29,7,[
-        {time:'17:00',type:'Story',title:'Turnus II — aktywności środek tygodnia',goal:'wizerunkowe',status:'Draft'},
-        {time:'10:00',type:'Story',title:'Promo + link do zapisów — szkoła',goal:'rekrutacja',status:'Draft'},
-      ]),
-      d(30,7,[
-        {time:'10:00',type:'Reel',title:'Talking head Ela o FS',goal:'wizerunkowe',status:'Draft'},
-        {time:'17:00',type:'Story',title:'Turnus II — snaps dnia',goal:'wizerunkowe',status:'Draft'},
-      ]),
-      d(31,7,[
-        {time:'10:00',type:'Image',title:'FSC — ostatnie dni, galeria',goal:'wizerunkowe',status:'Draft'},
-        {time:'17:00',type:'Story',title:'Podsumowanie tygodnia na stories',goal:'wizerunkowe',status:'Draft'},
-      ]),
-      d(1,8,[
-        {time:'10:00',type:'Story',title:'(do uzupełnienia)',goal:'—',status:'Draft'},
-        {time:'10:00',type:'Story',title:'Kongres — dzień 1',goal:'wizerunkowe',status:'Draft'},
-      ]),
-      d(2,8,[
-        {time:'10:00',type:'Story',title:'Kongres — dzień 2',goal:'wizerunkowe',status:'Draft'},
-        {time:'10:00',type:'Story',title:'Promo + link do zapisów — szkoła',goal:'rekrutacja',status:'Draft'},
-      ]),
-    ]
-  },
-  {
-    label:'Tydzień 4 · 3–9 sierpnia',
-    theme:'Kongres · Nauczyciele · Rekrutacja',
-    days:[
-      d(3,8,[
-        {time:'10:00',type:'Reel',title:'Podsumowanie oba turnusy — filozofia FS',goal:'angażujące',status:'Draft'},
-        {time:'10:00',type:'Story',title:'Kongres — dzień 3',goal:'wizerunkowe',status:'Draft'},
-      ]),
-      d(4,8,[
-        {time:'10:00',type:'Image',title:'Nowy rok szkolny — zapisy trwają, max 16 dzieci',goal:'rekrutacja',status:'Draft'},
-        {time:'10:00',type:'Story',title:'Kongres — dzień 4',goal:'wizerunkowe',status:'Draft'},
-      ]),
-      d(5,8,[
-        {time:'10:00',type:'Story',title:'Kongres — dzień 5',goal:'wizerunkowe',status:'Draft'},
-        {time:'10:00',type:'Story',title:'Odliczanie do roku szkolnego',goal:'angażujące',status:'Draft'},
-      ]),
-      d(6,8,[
-        {time:'10:00',type:'Reel',title:'Przedstawiamy nauczyciela — Joanna Nau',goal:'wizerunkowe',status:'Draft'},
-        {time:'10:00',type:'Story',title:'Kongres — dzień 6',goal:'wizerunkowe',status:'Draft'},
-        {time:'10:00',type:'Story',title:'Promo + link do zapisów — szkoła',goal:'rekrutacja',status:'Draft'},
-      ]),
-      d(7,8,[
-        {time:'10:00',type:'Image',title:'Tradycyjna szkoła vs FS — 5 kluczowych różnic',goal:'udostępnialne',status:'Draft'},
-        {time:'10:00',type:'Story',title:'Kongres — dzień 7',goal:'wizerunkowe',status:'Draft'},
-      ]),
-      d(8,8,[]),
-      d(9,8,[]),
-    ]
-  },
-  {
-    label:'Tydzień 5 · 10–16 sierpnia',
-    theme:'Przed Otwarciem · Nauczyciele · Finalna Rekrutacja',
-    days:[
-      d(10,8,[
-        {time:'10:00',type:'Reel',title:'Rolka do ustalenia',goal:'angażujące',status:'Draft'},
-        {time:'10:00',type:'Story',title:'Ostatnia rolka',goal:'—',status:'Draft'},
-        {time:'10:00',type:'Story',title:'Promo + link do zapisów — szkoła',goal:'rekrutacja',status:'Draft'},
-      ]),
-      d(11,8,[
-        {time:'10:00',type:'Image',title:'Co dzieje się z dzieckiem gdy przestajemy je wyręczać?',goal:'udostępnialne',status:'Draft'},
-        {time:'10:00',type:'Reel',title:'Kongres — podsumowanie',goal:'wizerunkowe',status:'Draft'},
-      ]),
-      d(12,8,[
-        {time:'10:00',type:'Story',title:'Ostatnia rolka',goal:'—',status:'Draft'},
-        {time:'10:00',type:'Story',title:'Pytania o FS',goal:'angażujące',status:'Draft'},
-      ]),
-      d(13,8,[
-        {time:'10:00',type:'Reel',title:'Przedstawiamy nauczyciela — Paweł',goal:'wizerunkowe',status:'Draft'},
-        {time:'10:00',type:'Story',title:'Promo + link do zapisów — szkoła',goal:'rekrutacja',status:'Draft'},
-        {time:'10:00',type:'Story',title:'Przygotowania do roku szkolnego',goal:'wizerunkowe',status:'Draft'},
-      ]),
-      d(14,8,[
-        {time:'10:00',type:'Image',title:'Rekrutacja: "Formularz jest niewiążący i bezpłatny"',goal:'rekrutacja',status:'Draft'},
-        {time:'10:00',type:'Story',title:'Post Paweł',goal:'wizerunkowe',status:'Draft'},
-        {time:'10:00',type:'Story',title:'Promo + link do zapisów — szkoła',goal:'rekrutacja',status:'Draft'},
-      ]),
-      d(15,8,[]),
-      d(16,8,[
-        {time:'10:00',type:'Story',title:'Promo + link do zapisów — szkoła',goal:'rekrutacja',status:'Draft'},
-      ]),
-    ]
-  },
+const WEEKS=[
+  {label:'Tydzień 1 · 13–19 lipca',theme:'Summer Camp — Turnus I',days:[
+    mk(13,7,[{time:'09:00',type:'Story',title:'Summer Camp — sneak peek',goal:'wizerunkowe',status:'Needs Revision'},{time:'12:00',type:'Story',title:'Aktywności Summer Camp — relacja',goal:'wizerunkowe',status:'Approved'}]),
+    mk(14,7,[{time:'10:00',type:'Image',title:'FSC — aktualne zdjęcia z aktywności',goal:'wizerunkowe',status:'Draft'},{time:'18:00',type:'Story',title:'Dzień na Summer Camp — snaps',goal:'wizerunkowe',status:'Draft'}]),
+    mk(15,7,[{time:'10:00',type:'Image',title:'FSC — aktualne zdjęcia z aktywności',goal:'angażujące',status:'Draft'},{time:'12:00',type:'Story',title:'Zapisy do szkoły — link w bio',goal:'rekrutacja',status:'Draft'},{time:'16:00',type:'Story',title:'Zajęcia survival — snaps',goal:'wizerunkowe',status:'Draft'}]),
+    mk(16,7,[{time:'10:00',type:'Reel',title:'Rolka — survival w lesie',goal:'angażujące',status:'Draft'},{time:'17:00',type:'Story',title:'Dzień na Summer Camp — snaps',goal:'wizerunkowe',status:'Draft'}]),
+    mk(17,7,[{time:'10:00',type:'Video',title:'Podsumowanie dni + CTA Turnus II',goal:'angażujące',status:'Draft'},{time:'17:00',type:'Story',title:'Dzień na Summer Camp — snaps',goal:'wizerunkowe',status:'Draft'}]),
+    mk(18,7,[{time:'10:00',type:'Story',title:'(do uzupełnienia)',goal:'—',status:'Draft'},{time:'11:00',type:'Story',title:'Szkolenie kadry — za kulisami',goal:'wizerunkowe',status:'Draft'}]),
+    mk(19,7,[{time:'12:00',type:'Story',title:'Szkolenie Freinet — wrap up',goal:'wizerunkowe',status:'Draft'}]),
+  ]},
+  {label:'Tydzień 2 · 20–26 lipca',theme:'Po Turnusie I · Szkolenia nauczycieli',days:[
+    mk(20,7,[{time:'10:00',type:'Reel',title:'Podsumowanie Turnus I + CTA Turnus II',goal:'angażujące',status:'Draft'},{time:'10:00',type:'Story',title:'Ostatnia rolka',goal:'—',status:'Draft'}]),
+    mk(21,7,[{time:'10:00',type:'Image',title:'Szkolenie Kędra — podsumowanie',goal:'rekrutacja',status:'Draft'},{time:'10:00',type:'Story',title:'Promo + link do zapisów — szkoła',goal:'rekrutacja',status:'Draft'}]),
+    mk(22,7,[{time:'10:00',type:'Story',title:'Ostatnia rolka',goal:'—',status:'Draft'},{time:'10:00',type:'Story',title:'Pytania o FS — story',goal:'angażujące',status:'Draft'}]),
+    mk(23,7,[{time:'10:00',type:'Reel',title:'Szkolenie nauczycieli — metoda Freineta',goal:'wizerunkowe',status:'Draft'},{time:'10:00',type:'Story',title:'Rolka Robert',goal:'—',status:'Draft'}]),
+    mk(24,7,[{time:'10:00',type:'Video',title:'Przedstawiamy nauczyciela — SAMYE',goal:'angażujące',status:'Draft'}]),
+    mk(25,7,[{time:'10:00',type:'Story',title:'Promo + link do zapisów — szkoła',goal:'rekrutacja',status:'Draft'}]),
+    mk(26,7,[]),
+  ]},
+  {label:'Tydzień 3 · 27 lip – 2 sie',theme:'Turnus II · Summer Camp',days:[
+    mk(27,7,[{time:'10:00',type:'Reel',title:'Przedstawiamy nauczyciela — Karolina',goal:'wizerunkowe',status:'Draft'},{time:'18:00',type:'Story',title:'Turnus II — dzień 1, relacja na żywo',goal:'wizerunkowe',status:'Draft'}]),
+    mk(28,7,[{time:'17:00',type:'Image',title:'Dwujęzyczność — fakty i mity',goal:'angażujące',status:'Draft'}]),
+    mk(29,7,[{time:'17:00',type:'Story',title:'Turnus II — aktywności środek tygodnia',goal:'wizerunkowe',status:'Draft'},{time:'10:00',type:'Story',title:'Promo + link do zapisów — szkoła',goal:'rekrutacja',status:'Draft'}]),
+    mk(30,7,[{time:'10:00',type:'Reel',title:'Talking head Ela o FS',goal:'wizerunkowe',status:'Draft'},{time:'17:00',type:'Story',title:'Turnus II — snaps dnia',goal:'wizerunkowe',status:'Draft'}]),
+    mk(31,7,[{time:'10:00',type:'Image',title:'FSC — ostatnie dni, galeria',goal:'wizerunkowe',status:'Draft'},{time:'17:00',type:'Story',title:'Podsumowanie tygodnia na stories',goal:'wizerunkowe',status:'Draft'}]),
+    mk(1,8,[{time:'10:00',type:'Story',title:'(do uzupełnienia)',goal:'—',status:'Draft'},{time:'10:00',type:'Story',title:'Kongres — dzień 1',goal:'wizerunkowe',status:'Draft'}]),
+    mk(2,8,[{time:'10:00',type:'Story',title:'Kongres — dzień 2',goal:'wizerunkowe',status:'Draft'},{time:'10:00',type:'Story',title:'Promo + link do zapisów — szkoła',goal:'rekrutacja',status:'Draft'}]),
+  ]},
+  {label:'Tydzień 4 · 3–9 sierpnia',theme:'Kongres · Nauczyciele · Rekrutacja',days:[
+    mk(3,8,[{time:'10:00',type:'Reel',title:'Podsumowanie oba turnusy — filozofia FS',goal:'angażujące',status:'Draft'},{time:'10:00',type:'Story',title:'Kongres — dzień 3',goal:'wizerunkowe',status:'Draft'}]),
+    mk(4,8,[{time:'10:00',type:'Image',title:'Nowy rok szkolny — zapisy trwają, max 16 dzieci',goal:'rekrutacja',status:'Draft'},{time:'10:00',type:'Story',title:'Kongres — dzień 4',goal:'wizerunkowe',status:'Draft'}]),
+    mk(5,8,[{time:'10:00',type:'Story',title:'Kongres — dzień 5',goal:'wizerunkowe',status:'Draft'},{time:'10:00',type:'Story',title:'Odliczanie do roku szkolnego',goal:'angażujące',status:'Draft'}]),
+    mk(6,8,[{time:'10:00',type:'Reel',title:'Przedstawiamy nauczyciela — Joanna Nau',goal:'wizerunkowe',status:'Draft'},{time:'10:00',type:'Story',title:'Kongres — dzień 6',goal:'wizerunkowe',status:'Draft'},{time:'10:00',type:'Story',title:'Promo + link do zapisów — szkoła',goal:'rekrutacja',status:'Draft'}]),
+    mk(7,8,[{time:'10:00',type:'Image',title:'Tradycyjna szkoła vs FS — 5 kluczowych różnic',goal:'udostępnialne',status:'Draft'},{time:'10:00',type:'Story',title:'Kongres — dzień 7',goal:'wizerunkowe',status:'Draft'}]),
+    mk(8,8,[]),mk(9,8,[]),
+  ]},
+  {label:'Tydzień 5 · 10–16 sierpnia',theme:'Przed Otwarciem · Finalna Rekrutacja',days:[
+    mk(10,8,[{time:'10:00',type:'Reel',title:'Rolka do ustalenia',goal:'angażujące',status:'Draft'},{time:'10:00',type:'Story',title:'Ostatnia rolka',goal:'—',status:'Draft'},{time:'10:00',type:'Story',title:'Promo + link do zapisów — szkoła',goal:'rekrutacja',status:'Draft'}]),
+    mk(11,8,[{time:'10:00',type:'Image',title:'Co dzieje się z dzieckiem gdy przestajemy je wyręczać?',goal:'udostępnialne',status:'Draft'},{time:'10:00',type:'Reel',title:'Kongres — podsumowanie',goal:'wizerunkowe',status:'Draft'}]),
+    mk(12,8,[{time:'10:00',type:'Story',title:'Ostatnia rolka',goal:'—',status:'Draft'},{time:'10:00',type:'Story',title:'Pytania o FS',goal:'angażujące',status:'Draft'}]),
+    mk(13,8,[{time:'10:00',type:'Reel',title:'Przedstawiamy nauczyciela — Paweł',goal:'wizerunkowe',status:'Draft'},{time:'10:00',type:'Story',title:'Promo + link do zapisów — szkoła',goal:'rekrutacja',status:'Draft'},{time:'10:00',type:'Story',title:'Przygotowania do roku szkolnego',goal:'wizerunkowe',status:'Draft'}]),
+    mk(14,8,[{time:'10:00',type:'Image',title:'Rekrutacja: "Formularz jest niewiążący i bezpłatny"',goal:'rekrutacja',status:'Draft'},{time:'10:00',type:'Story',title:'Post Paweł',goal:'wizerunkowe',status:'Draft'},{time:'10:00',type:'Story',title:'Promo + link do zapisów — szkoła',goal:'rekrutacja',status:'Draft'}]),
+    mk(15,8,[]),
+    mk(16,8,[{time:'10:00',type:'Story',title:'Promo + link do zapisów — szkoła',goal:'rekrutacja',status:'Draft'}]),
+  ]},
 ];
 
-const CAMPAIGNS = [
-  {name:'Kampania FSC',      type:'Kampania', from:{d:20,m:7}, to:{d:25,m:7}},
-  {name:'Kampania FS promo', type:'Kampania', from:{d:22,m:7}, to:{d:31,m:7}},
+const CAMPAIGNS=[
+  {name:'Kampania FSC',type:'Kampania',from:{d:20,m:7},to:{d:25,m:7}},
+  {name:'Kampania FS promo',type:'Kampania',from:{d:22,m:7},to:{d:31,m:7}},
+];
+const NAGRYWKI=[
+  {title:'Nagrywki Ela',type:'Nagrywka',date:22,month:7},
+  {title:'Nagrywki Paweł',type:'Nagrywka',date:28,month:7,note:'data do ustalenia'},
 ];
 
-const NAGRYWKI = [
-  {title:'Nagrywki Ela',   type:'Nagrywka', date:22, month:7},
-  {title:'Nagrywki Paweł', type:'Nagrywka', date:28, month:7, note:'data do ustalenia'},
-];
-
-function dateVal(d,m){return m*100+d;}
-
-function extraPostsForDay(date,month){
-  const v=dateVal(date,month);
-  const posts=[];
-  CAMPAIGNS.forEach(c=>{
-    if(v>=dateVal(c.from.d,c.from.m)&&v<=dateVal(c.to.d,c.to.m))
-      posts.push({type:c.type, title:c.name, goal:'—', status:'Aktywna', time:''});
-  });
-  NAGRYWKI.forEach(n=>{
-    if(n.date===date&&n.month===month)
-      posts.push({type:n.type, title:n.title+(n.note?' ('+n.note+')':''), goal:'—', status:'Draft', time:''});
-  });
+function dv(d,m){return m*100+d;}
+function extra(date,month){
+  const v=dv(date,month),posts=[];
+  CAMPAIGNS.forEach(c=>{if(v>=dv(c.from.d,c.from.m)&&v<=dv(c.to.d,c.to.m))posts.push({type:c.type,title:c.name,goal:'—',status:'Aktywna',time:''});});
+  NAGRYWKI.forEach(n=>{if(n.date===date&&n.month===month)posts.push({type:n.type,title:n.title+(n.note?` (${n.note})`:''),goal:'—',status:'Draft',time:''});});
   return posts;
 }
 
-// Order: Mon(0) Tue(1) Wed(2) Thu(3) Fri(4) Sat(5) Sun(6)
-const DOW_ORDER = [0,1,2,3,4,5,6];
-const DOW_NAMES = ['Pon','Wt','Śr','Czw','Pt','Sb','Ndz'];
+function tC(t){return{Story:'tc-story',Image:'tc-image',Reel:'tc-reel',Video:'tc-video',Kampania:'tc-kampania',Nagrywka:'tc-nagrywka'}[t]||'tc-story';}
+function sC(s){return s==='Approved'?'ms-approved':s==='Needs Revision'?'ms-revision':s==='Aktywna'?'ms-aktywna':'ms-draft';}
+function sL(s){return s==='Approved'?'✓ Zatwierdzone':s==='Needs Revision'?'⚠ Do poprawki':s==='Aktywna'?'▶ Aktywna':'Draft';}
+function gL(g){return{wizerunkowe:'wizerunek',angażujące:'angażowanie',rekrutacja:'rekrutacja',udostępnialne:'udostępnianie'}[g]||'';}
+function nk(wi,d,m,pi){return`fs_note_w${wi}_${m}${d}_p${pi}`;}
+function ek(wi){return`fs_ela_w${wi}`;}
 
-let currentWeek = 0;
-const today = new Date();
+/* ── STATE ── */
+let curWeek=0;
+const today=new Date();
 
-function typeClass(t){
-  return {Story:'tc-story',Image:'tc-image',Reel:'tc-reel',Video:'tc-video',Kampania:'tc-kampania',Nagrywka:'tc-nagrywka'}[t]||'tc-story';
+/* ── CARD HTML ── */
+function card(wi,d,pi,post){
+  const key=nk(wi,d.date,d.month,pi);
+  const sv=localStorage.getItem(key)||'';
+  const hn=sv.length>0;
+  const isEmpty=!post.title||post.title==='—';
+  const gH=gL(post.goal)?`<span class="meta-goal">${gL(post.goal)}</span>`:'';
+  return`<div class="post-card">
+    <div class="post-header">
+      ${post.time?`<span class="post-time">${post.time}</span>`:''}
+      <span class="type-chip ${tC(post.type)}">${post.type}</span>
+    </div>
+    <div class="post-title${isEmpty?' empty':''}">${isEmpty?'(tytuł do ustalenia)':post.title}</div>
+    <div class="post-meta">${gH}<span class="meta-status ${sC(post.status)}">${sL(post.status)}</span></div>
+    <button class="notes-toggle${hn?' open':''}" onclick="toggleNote(this,'${key}')">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+      ${hn?`Notatki Eli (${sv.length}zn.)`:'Notatki Eli'}
+    </button>
+    <div class="notes-area${hn?' visible':''}">
+      <textarea placeholder="Dodaj uwagi, briefing, linki…" oninput="saveNote(this,'${key}',this.closest('.post-card').querySelector('.notes-toggle'))">${sv}</textarea>
+      <button class="done-btn" onclick="this.previousElementSibling.blur();showToast('✓ Zapisano!')">✓ Gotowe</button>
+    </div>
+  </div>`;
 }
-function statusClass(s){
-  if(s==='Approved') return 'ms-approved';
-  if(s==='Needs Revision') return 'ms-revision';
-  if(s==='Aktywna') return 'ms-aktywna';
-  return 'ms-draft';
-}
-function statusLabel(s){
-  if(s==='Approved') return '✓ Zatwierdzone';
-  if(s==='Needs Revision') return '⚠ Do poprawki';
-  if(s==='Aktywna') return '▶ Aktywna';
-  return 'Draft';
-}
-function goalLabel(g){
-  const map={wizerunkowe:'wizerunek',angażujące:'angażowanie',rekrutacja:'rekrutacja',udostępnialne:'udostępnianie'};
-  return map[g]||'';
-}
 
-function noteKey(wi,dayDate,dayMonth,pi){
-  return `fs_note_w${wi}_${dayMonth}${dayDate}_p${pi}`;
-}
+/* ── RENDER WEEK ── */
+function render(wi){
+  curWeek=wi;
+  const w=WEEKS[wi];
+  const sorted=[...w.days].sort((a,b)=>a.dow-b.dow).map(d=>({...d,all:[...d.posts,...extra(d.date,d.month)]}));
+  const total=w.days.reduce((s,d)=>s+d.posts.length,0);
 
-function renderWeek(wi){
-  const week = WEEKS[wi];
-  document.getElementById('weekLabel').textContent = week.label;
-  document.getElementById('weekTheme').textContent = week.theme;
-
-  // count posts
-  const total = week.days.reduce((s,d)=>s+d.posts.length,0);
-  document.getElementById('weekCountBadge').textContent = total + ' postów';
-  document.getElementById('wfStat').innerHTML = `Tydzień <strong>${wi+1} z ${WEEKS.length}</strong> &nbsp;·&nbsp; <strong>${total}</strong> postów`;
-
-  // dots
-  const dotsEl = document.getElementById('weekDots');
-  dotsEl.innerHTML = WEEKS.map((_,i)=>
-    `<div class="week-dot${i===wi?' active':''}" onclick="changeWeek(${i-currentWeek})" title="Tydzień ${i+1}"></div>`
-  ).join('');
+  // labels & badges
+  ['weekLabelD','weekLabelM'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=w.label;});
+  document.getElementById('weekTheme').textContent=w.theme;
+  document.getElementById('weekBadge').textContent=total+' postów';
+  document.getElementById('weekFooter').textContent=`Tydzień ${wi+1} z ${WEEKS.length} · ${total} postów`;
 
   // nav buttons
-  document.getElementById('prevBtn').disabled = wi===0;
-  document.getElementById('nextBtn').disabled = wi===WEEKS.length-1;
+  ['prevBtnD','prevBtnM'].forEach(id=>{const b=document.getElementById(id);if(b)b.disabled=wi===0;});
+  ['nextBtnD','nextBtnM'].forEach(id=>{const b=document.getElementById(id);if(b)b.disabled=wi===WEEKS.length-1;});
 
-  // sort days by DOW (Mon=0 first, Sun=6 last)
-  const sorted = [...week.days].sort((a,b)=>a.dow-b.dow);
+  // dots
+  ['weekDotsD','weekDotsM'].forEach(id=>{
+    const el=document.getElementById(id);if(!el)return;
+    el.innerHTML=WEEKS.map((_,i)=>`<div class="week-dot${i===wi?' active':''}" onclick="changeWeek(${i-wi})"></div>`).join('');
+  });
 
-  const grid = document.getElementById('calGrid');
-  grid.innerHTML = '';
+  renderMobile(wi,sorted);
+  renderDesktop(wi,sorted);
+  loadEla(wi);
+}
 
-  sorted.forEach(day=>{
-    const isToday = (today.getDate()===day.date && today.getMonth()+1===day.month);
-    const dowName = DOW_NAMES[day.dow];
-    const extraPosts = extraPostsForDay(day.date, day.month);
-    const allPosts = [...day.posts, ...extraPosts];
-    const isEmptyAll = allPosts.length === 0;
+/* ── MOBILE ── */
+let mD=[],mI=0,mW=0;
 
-    const col = document.createElement('div');
-    col.className = 'day-col' + (isEmptyAll ? ' is-empty-mobile' : '');
+function renderMobile(wi,sorted){
+  mW=wi;mD=sorted;
+  document.getElementById('dayStrip').innerHTML=sorted.map((d,i)=>
+    `<button class="day-btn${d.all.length?' has-posts':''}${i===mI?' active':''}" onclick="selDay(${i})" id="mb${i}">
+      <span class="dbn">${DOW[d.dow]}</span>
+      <span class="dbd">${d.date}</span>
+    </button>`
+  ).join('');
+  // auto-select today or first with posts
+  let def=sorted.findIndex(d=>d.date===today.getDate()&&d.month===today.getMonth()+1);
+  if(def<0)def=sorted.findIndex(d=>d.all.length>0);
+  if(def<0)def=0;
+  selDay(def);
+}
 
-    col.innerHTML = `
-      <div class="day-head${isToday?' day-today-head':''}${isEmptyAll?' empty-head':''}">
-        <span class="day-name">${dowName}</span>
-        <span class="day-date">${day.date}</span>
-        <span class="day-month">${MONTH_NAMES[day.month]}</span>
-      </div>`;
+function selDay(idx){
+  mI=idx;
+  mD.forEach((_,i)=>{const b=document.getElementById('mb'+i);if(b)b.classList.toggle('active',i===idx);});
+  const d=mD[idx],wi=mW;
+  const hp=idx>0,hn=idx<mD.length-1;
+  let html=`<div class="day-nav">
+    <button class="day-nav-btn" onclick="selDay(${idx-1})" ${hp?'':'disabled'}>←</button>
+    <div class="day-nav-title">${DOW[d.dow]}, ${d.date} ${MON[d.month]}</div>
+    <button class="day-nav-btn" onclick="selDay(${idx+1})" ${hn?'':'disabled'}>→</button>
+  </div>`;
+  if(!d.all.length){html+=`<div class="day-empty">Brak postów w tym dniu</div>`;}
+  else{d.all.forEach((p,pi)=>{html+=card(wi,d,pi,p);});}
+  document.getElementById('postsArea').innerHTML=html;
+}
 
-    if(isEmptyAll){
-      const em=document.createElement('div');
-      em.className='empty-day-msg';
-      em.textContent='—';
-      col.appendChild(em);
-    } else {
-      allPosts.forEach((post,pi)=>{
-        const key=noteKey(wi,day.date,day.month,pi);
-        const savedNote=localStorage.getItem(key)||'';
-        const hasNote=savedNote.length>0;
-
-        const card=document.createElement('div');
-        card.className='post-card';
-
-        const goalHtml=goalLabel(post.goal)?`<span class="meta-goal">${goalLabel(post.goal)}</span>`:'';
-        const statusHtml=`<span class="meta-status ${statusClass(post.status)}">${statusLabel(post.status)}</span>`;
-        const titleClass=(!post.title||post.title==='—')?'post-title no-title':'post-title';
-        const titleText=(!post.title||post.title==='—')?'(tytuł do ustalenia)':post.title;
-
-        card.innerHTML=`
-          <div class="post-header">
-            <span class="post-time">${post.time}</span>
-            <span class="type-chip ${typeClass(post.type)}">${post.type}</span>
-          </div>
-          <div class="${titleClass}">${titleText}</div>
-          <div class="post-meta">${goalHtml}${statusHtml}</div>
-          <button class="notes-toggle${hasNote?' open':''}" onclick="toggleNote(this,'${key}')">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
-            ${hasNote?'Notatki Eli ('+savedNote.length+'zn.)':'Notatki Eli'}
-          </button>
-          <div class="notes-area${hasNote?' visible':''}">
-            <textarea placeholder="Dodaj uwagi, briefing, linki…" oninput="saveNote(this,'${key}',this.closest('.post-card').querySelector('.notes-toggle'))">${savedNote}</textarea>
-          </div>`;
-        col.appendChild(card);
-      });
-    }
+/* ── DESKTOP ── */
+function renderDesktop(wi,sorted){
+  const grid=document.getElementById('desktopGrid');
+  grid.innerHTML='';
+  sorted.forEach(d=>{
+    const isT=d.date===today.getDate()&&d.month===today.getMonth()+1;
+    const empty=d.all.length===0;
+    const col=document.createElement('div');
+    col.innerHTML=`<div class="day-head${empty?' empty-h':''}${isT?' today-h':''}">
+      <span class="dh-name">${DOW[d.dow]}</span>
+      <span class="dh-date${isT?' today-d':''}">${d.date}</span>
+      <span class="dh-month">${MON[d.month]}</span>
+    </div>`;
+    if(empty){col.insertAdjacentHTML('beforeend',`<div class="empty-day-msg">—</div>`);}
+    else{d.all.forEach((p,pi)=>col.insertAdjacentHTML('beforeend',card(wi,d,pi,p)));}
     grid.appendChild(col);
   });
-
-  loadEla(wi);
-  renderMobile(wi);
 }
 
+/* ── INTERACTIONS ── */
 function toggleNote(btn,key){
   const area=btn.nextElementSibling;
-  const visible=area.classList.toggle('visible');
-  btn.classList.toggle('open',visible);
-  if(visible) area.querySelector('textarea').focus();
+  const vis=area.classList.toggle('visible');
+  btn.classList.toggle('open',vis);
+  if(vis)area.querySelector('textarea').focus();
 }
-
-function saveNote(ta,key,toggleBtn){
+function saveNote(ta,key,btn){
   localStorage.setItem(key,ta.value);
   const len=ta.value.length;
-  const hasNote=len>0;
-  toggleBtn.innerHTML=`
-    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
-    ${hasNote?'Notatki Eli ('+len+'zn.)':'Notatki Eli'}`;
+  btn.innerHTML=`<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>${len?`Notatki Eli (${len}zn.)`:'Notatki Eli'}`;
   showToast('✓ Zapisano!');
-  pushNote(key, ta.value);
+  sbSave(key,ta.value);
 }
-
-function elaKey(wi){ return `fs_ela_w${wi}`; }
-
 function toggleEla(){
   const body=document.getElementById('elaBody');
-  const chevron=document.getElementById('elaChevron');
-  const hint=document.getElementById('elaHint');
-  const visible=body.classList.toggle('visible');
-  chevron.classList.toggle('open',visible);
-  if(visible){
-    body.querySelector('textarea').focus();
-    hint.textContent='kliknij, żeby zwinąć';
-  } else {
-    hint.textContent='kliknij, żeby rozwinąć';
-  }
+  const chev=document.getElementById('elaChev');
+  const vis=body.classList.toggle('visible');
+  chev.classList.toggle('open',vis);
+  if(vis)document.getElementById('elaTa').focus();
 }
-
 function saveEla(ta){
-  const key=elaKey(currentWeek);
+  const key=ek(curWeek);
   localStorage.setItem(key,ta.value);
-  const len=ta.value.length;
-  document.getElementById('elaCharCount').textContent=len>0?len+' znaków':'';
+  document.getElementById('elaCount').textContent=ta.value.length?ta.value.length+' znaków':'';
   showToast('✓ Zapisano!');
-  pushNote(key, ta.value);
+  sbSave(key,ta.value);
 }
-
 function loadEla(wi){
-  const saved=localStorage.getItem(elaKey(wi))||'';
-  const ta=document.getElementById('elaTextarea');
-  ta.value=saved;
-  document.getElementById('elaCharCount').textContent=saved.length>0?saved.length+' znaków':'';
-  // if there's content, show hint that notes exist
-  const hint=document.getElementById('elaHint');
-  const body=document.getElementById('elaBody');
-  if(!body.classList.contains('visible')){
-    hint.textContent=saved.length>0?saved.length+' zn. · kliknij, żeby rozwinąć':'kliknij, żeby rozwinąć';
-  }
+  const sv=localStorage.getItem(ek(wi))||'';
+  document.getElementById('elaTa').value=sv;
+  document.getElementById('elaCount').textContent=sv.length?sv.length+' znaków':'';
+  // close ela on week change
+  document.getElementById('elaBody').classList.remove('visible');
+  document.getElementById('elaChev').classList.remove('open');
 }
-
-let mobileSortedDays = [];
-let mobileWeekIndex = 0;
-
-function renderMobile(wi) {
-  mobileWeekIndex = wi;
-  const week = WEEKS[wi];
-  const sorted = [...week.days].sort((a,b) => a.dow - b.dow);
-  mobileSortedDays = sorted.map(day => {
-    const extra = extraPostsForDay(day.date, day.month);
-    return { ...day, allPosts: [...day.posts, ...extra] };
-  });
-
-  // build day strip
-  const strip = document.getElementById('mobileDayStrip');
-  strip.innerHTML = mobileSortedDays.map((day, i) => {
-    const hasPosts = day.allPosts.length > 0;
-    return `<button class="mobile-day-btn${hasPosts?' has-posts':''}" onclick="selectMobileDay(${i})" id="mdb-${i}">
-      <span class="mdb-name">${DOW_NAMES[day.dow]}</span>
-      <span class="mdb-date">${day.date}</span>
-    </button>`;
-  }).join('');
-
-  // auto-select: today if in week, else first day with posts
-  let defaultIdx = mobileSortedDays.findIndex(d =>
-    today.getDate()===d.date && today.getMonth()+1===d.month
-  );
-  if(defaultIdx < 0) defaultIdx = mobileSortedDays.findIndex(d => d.allPosts.length > 0);
-  if(defaultIdx < 0) defaultIdx = 0;
-  selectMobileDay(defaultIdx);
-}
-
-let currentMobileDayIdx = 0;
-
-function selectMobileDay(idx) {
-  currentMobileDayIdx = idx;
-
-  // update strip active state
-  mobileSortedDays.forEach((_, i) => {
-    const btn = document.getElementById('mdb-'+i);
-    if(btn) btn.classList.toggle('active', i===idx);
-  });
-
-  const day = mobileSortedDays[idx];
-  const postsEl = document.getElementById('mobilePosts');
-  const wi = mobileWeekIndex;
-  const hasPrev = idx > 0;
-  const hasNext = idx < mobileSortedDays.length - 1;
-
-  const navHtml = `<div class="mobile-day-nav">
-    <button class="mobile-day-nav-btn" onclick="selectMobileDay(${idx-1})" ${hasPrev?'':'disabled'}>←</button>
-    <div class="mobile-day-title" style="margin:0;padding:0;border:none;">${DOW_NAMES[day.dow]}, ${day.date} ${MONTH_NAMES[day.month]}</div>
-    <button class="mobile-day-nav-btn" onclick="selectMobileDay(${idx+1})" ${hasNext?'':'disabled'}>→</button>
-  </div>`;
-
-  if(!day || day.allPosts.length === 0) {
-    postsEl.innerHTML = navHtml + `<div class="mobile-empty">Brak postów w tym dniu</div>`;
-    return;
-  }
-
-  let html = navHtml;
-
-  day.allPosts.forEach((post, pi) => {
-    const key = noteKey(wi, day.date, day.month, pi);
-    const savedNote = localStorage.getItem(key) || '';
-    const hasNote = savedNote.length > 0;
-    const goalHtml = goalLabel(post.goal) ? `<span class="meta-goal">${goalLabel(post.goal)}</span>` : '';
-    const statusHtml = `<span class="meta-status ${statusClass(post.status)}">${statusLabel(post.status)}</span>`;
-    const titleClass = (!post.title||post.title==='—') ? 'post-title no-title' : 'post-title';
-    const titleText = (!post.title||post.title==='—') ? '(tytuł do ustalenia)' : post.title;
-
-    html += `<div class="post-card">
-      <div class="post-header">
-        ${post.time ? `<span class="post-time">${post.time}</span>` : ''}
-        <span class="type-chip ${typeClass(post.type)}">${post.type}</span>
-      </div>
-      <div class="${titleClass}">${titleText}</div>
-      <div class="post-meta">${goalHtml}${statusHtml}</div>
-      <button class="notes-toggle${hasNote?' open':''}" onclick="toggleNote(this,'${key}')">
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
-        ${hasNote?'Notatki Eli ('+savedNote.length+'zn.)':'Notatki Eli'}
-      </button>
-      <div class="notes-area${hasNote?' visible':''}">
-        <textarea placeholder="Dodaj uwagi, briefing, linki…" oninput="saveNote(this,'${key}',this.closest('.post-card').querySelector('.notes-toggle'))">${savedNote}</textarea>
-        <button class="done-btn" onclick="this.previousElementSibling.blur()">✓ Gotowe — zapisano</button>
-      </div>
-    </div>`;
-  });
-
-  postsEl.innerHTML = html;
-}
-
-// swipe gesture for navigating days on mobile
-(function(){
-  let touchStartX = 0;
-  document.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, {passive:true});
-  document.addEventListener('touchend', e => {
-    const dx = e.changedTouches[0].clientX - touchStartX;
-    if(Math.abs(dx) < 60) return;
-    if(e.target.closest('textarea, .mobile-day-strip')) return;
-    if(dx < 0 && currentMobileDayIdx < mobileSortedDays.length - 1) selectMobileDay(currentMobileDayIdx + 1);
-    if(dx > 0 && currentMobileDayIdx > 0) selectMobileDay(currentMobileDayIdx - 1);
-  }, {passive:true});
-})();
-
-function isMobile() { return window.innerWidth <= 768; }
-
 function changeWeek(delta){
-  const next=currentWeek+delta;
-  if(next<0||next>=WEEKS.length) return;
-  currentWeek=next;
-  renderWeek(currentWeek);
+  const n=curWeek+delta;
+  if(n<0||n>=WEEKS.length)return;
   window.scrollTo({top:0,behavior:'smooth'});
+  render(n);
 }
 
-// keyboard nav
+/* ── SWIPE ── */
+let _tx=0;
+document.addEventListener('touchstart',e=>{_tx=e.touches[0].clientX;},{passive:true});
+document.addEventListener('touchend',e=>{
+  const dx=e.changedTouches[0].clientX-_tx;
+  if(Math.abs(dx)<60)return;
+  if(e.target.closest('textarea,.day-strip'))return;
+  if(dx<0&&mI<mD.length-1)selDay(mI+1);
+  else if(dx>0&&mI>0)selDay(mI-1);
+},{passive:true});
+
+/* ── KEYBOARD ── */
 document.addEventListener('keydown',e=>{
-  if(e.key==='ArrowRight'&&!e.target.matches('textarea')) changeWeek(1);
-  if(e.key==='ArrowLeft'&&!e.target.matches('textarea')) changeWeek(-1);
+  if(e.target.matches('textarea'))return;
+  if(e.key==='ArrowRight')changeWeek(1);
+  if(e.key==='ArrowLeft')changeWeek(-1);
 });
 
-// ustal aktualny tydzień na start
-let startWeek = 0;
-const todayVal = today.getMonth()*100 + today.getDate(); // m*100+d dla porównania
-WEEKS.forEach((w, wi) => {
-  w.days.forEach(d => {
-    if(d.month === today.getMonth()+1 && d.date === today.getDate()) startWeek = wi;
-  });
-});
+/* ── INIT ── */
+let startW=0;
+WEEKS.forEach((w,wi)=>w.days.forEach(d=>{
+  if(d.month===today.getMonth()+1&&d.date===today.getDate())startW=wi;
+}));
 
-// załaduj notatki z Supabase, potem wyrenderuj
-syncFromSupabase().finally(() => {
-  renderWeek(startWeek);
-  currentWeek = startWeek;
-});
-
-// re-render mobile on resize
-window.addEventListener('resize', () => {
-  if(isMobile()) renderMobile(currentWeek);
-});
+sbLoad().finally(()=>render(startW));
 </script>
 </body>
 </html>
