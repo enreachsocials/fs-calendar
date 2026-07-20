@@ -408,24 +408,30 @@ body{
 
 /* ── MOBILE DAY PICKER ── */
 .mobile-view{display:none;}
+
 .mobile-day-strip{
   display:flex;
   overflow-x:auto;
-  gap:6px;
-  padding:10px 14px;
+  gap:8px;
+  padding:12px 14px;
   background:var(--surface);
-  border-bottom:1px solid var(--border);
+  border-bottom:2px solid var(--border);
   scrollbar-width:none;
   -webkit-overflow-scrolling:touch;
-  flex-shrink:0;
+  position:sticky;
+  top:0;
+  z-index:50;
 }
 .mobile-day-strip::-webkit-scrollbar{display:none;}
+
 .mobile-day-btn{
-  display:flex;flex-direction:column;align-items:center;
-  gap:2px;
-  min-width:44px;
-  padding:7px 8px;
-  border-radius:10px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:3px;
+  min-width:52px;
+  padding:9px 8px 12px;
+  border-radius:12px;
   border:1.5px solid var(--border);
   background:var(--surface);
   cursor:pointer;
@@ -433,7 +439,6 @@ body{
   transition:all .15s;
   position:relative;
 }
-.mobile-day-btn:hover{border-color:var(--green2);background:var(--green-light);}
 .mobile-day-btn.active{
   background:var(--green);
   border-color:var(--green);
@@ -441,54 +446,67 @@ body{
 .mobile-day-btn.has-posts::after{
   content:'';
   position:absolute;
-  bottom:4px;left:50%;transform:translateX(-50%);
-  width:4px;height:4px;border-radius:50%;
+  bottom:5px;left:50%;transform:translateX(-50%);
+  width:5px;height:5px;border-radius:50%;
   background:var(--gold);
 }
-.mobile-day-btn.active::after{background:#fff;}
-.mdb-name{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--sub);}
-.mdb-date{font-size:18px;font-weight:800;line-height:1;color:var(--text);font-variant-numeric:tabular-nums;}
+.mobile-day-btn.active::after{background:rgba(255,255,255,.7);}
+.mdb-name{
+  font-size:10px;font-weight:700;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--sub);
+}
+.mdb-date{
+  font-size:22px;font-weight:800;line-height:1;
+  color:var(--text);font-variant-numeric:tabular-nums;
+}
 .mobile-day-btn.active .mdb-name,
 .mobile-day-btn.active .mdb-date{color:#fff;}
 
 .mobile-posts{
-  padding:12px 14px 24px;
-  flex:1;overflow-y:auto;
+  padding:14px 14px 32px;
 }
 .mobile-day-title{
-  font-size:13px;font-weight:700;color:var(--green);
+  font-size:15px;font-weight:700;color:var(--green);
   font-family:Georgia,serif;
-  padding:4px 0 12px;
+  padding-bottom:12px;
   border-bottom:1px solid var(--border);
-  margin-bottom:12px;
+  margin-bottom:14px;
 }
 .mobile-empty{
-  text-align:center;padding:40px 20px;
-  font-size:13px;color:var(--sub);font-style:italic;opacity:.6;
+  text-align:center;padding:48px 20px;
+  font-size:14px;color:var(--sub);font-style:italic;
 }
 
 @media(max-width:768px){
-  /* topbar compact */
-  .topbar{height:auto;padding:10px 14px;flex-wrap:wrap;gap:6px;}
+  /* topbar — 2 rzędy */
+  .topbar{
+    height:auto;
+    padding:10px 16px;
+    flex-wrap:wrap;
+    gap:8px;
+    position:sticky;top:0;z-index:100;
+  }
   .topbar-brand{order:1;flex:1;font-size:14px;}
   .topbar-spacer{display:none;}
   .week-nav{order:2;width:100%;justify-content:center;gap:10px;}
-  .week-label{min-width:0;font-size:12px;}
+  .week-label{min-width:0;font-size:13px;font-weight:700;}
   .week-dots,.topbar-total{display:none;}
 
   /* subtitle */
-  .week-sub{padding:8px 14px;flex-wrap:wrap;gap:6px;}
+  .week-sub{padding:8px 16px;flex-wrap:wrap;gap:6px;}
   .week-theme{font-size:12px;}
   .week-count-badge{font-size:10px;}
   .legend{display:none;}
 
-  /* ukryj desktop grid, pokaż mobile */
+  /* ukryj desktop grid — pokaż mobile view */
   .cal-wrap{display:none;}
-  .mobile-view{display:flex;flex-direction:column;flex:1;overflow:hidden;}
+  .mobile-view{display:block;}
 
   /* ela i footer */
-  .ela-section{margin:12px 14px 0;}
-  .week-footer{padding:8px 14px 10px;flex-wrap:wrap;gap:6px;}
+  .ela-section{margin:16px 14px 0;}
+  .ela-header{padding:14px 16px;}
+  .ela-body{padding:14px 16px;}
+  .week-footer{padding:10px 16px 16px;flex-wrap:wrap;gap:6px;}
   .notes-hint{display:none;}
 }
 </style>
@@ -871,7 +889,7 @@ function renderWeek(wi){
   });
 
   loadEla(wi);
-  if(isMobile()) renderMobile(wi);
+  renderMobile(wi);
 }
 
 function toggleNote(btn,key){
