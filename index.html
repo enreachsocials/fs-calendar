@@ -385,6 +385,22 @@ body{
   text-align:right;
   margin-top:6px;
 }
+.done-btn{
+  display:none;
+  margin-top:10px;
+  width:100%;
+  padding:10px;
+  background:var(--green);
+  color:#fff;
+  border:none;
+  border-radius:8px;
+  font-size:14px;
+  font-weight:700;
+  cursor:pointer;
+}
+@media(max-width:768px){
+  .done-btn{display:block;}
+}
 
 
 /* ── EMPTY DAY ── */
@@ -567,6 +583,7 @@ body{
   <div class="ela-body" id="elaBody">
     <textarea id="elaTextarea" placeholder="Wpisz tutaj swoje pomysły na content, inspiracje, obserwacje, pytania od obserwatorów — cokolwiek chcesz przekazać…" oninput="saveEla(this)"></textarea>
     <div class="ela-char-count" id="elaCharCount"></div>
+    <button class="done-btn" onclick="document.getElementById('elaTextarea').blur()">✓ Gotowe — zapisano</button>
   </div>
 </div>
 
@@ -1020,6 +1037,7 @@ function selectMobileDay(idx) {
       </button>
       <div class="notes-area${hasNote?' visible':''}">
         <textarea placeholder="Dodaj uwagi, briefing, linki…" oninput="saveNote(this,'${key}',this.closest('.post-card').querySelector('.notes-toggle'))">${savedNote}</textarea>
+        <button class="done-btn" onclick="this.previousElementSibling.blur()">✓ Gotowe — zapisano</button>
       </div>
     </div>`;
   });
