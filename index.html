@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Future Schooling · Plan Contentu</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 <style>
@@ -63,8 +62,8 @@
   --note-bg:#1E1C10;--note-border:#3A3418;
 }
 
-html, body{
-  overflow-x:hidden;
+html{
+  overflow-x:clip;
 }
 body{
   background:var(--bg);
@@ -74,6 +73,33 @@ body{
   min-height:100vh;
   display:flex;
   flex-direction:column;
+  width:100%;
+  max-width:100vw;
+  overflow-x:clip;
+}
+
+/* toast */
+.toast{
+  position:fixed;
+  bottom:24px;
+  left:50%;
+  transform:translateX(-50%) translateY(20px);
+  background:var(--green);
+  color:#fff;
+  font-size:14px;
+  font-weight:600;
+  padding:12px 24px;
+  border-radius:40px;
+  box-shadow:0 4px 20px rgba(0,0,0,.2);
+  opacity:0;
+  transition:opacity .2s, transform .2s;
+  pointer-events:none;
+  z-index:9999;
+  white-space:nowrap;
+}
+.toast.show{
+  opacity:1;
+  transform:translateX(-50%) translateY(0);
 }
 
 /* ── TOP BAR ── */
@@ -526,12 +552,15 @@ body{
     flex-wrap:wrap;
     gap:8px;
     position:sticky;top:0;z-index:100;
+    width:100%;
+    max-width:100vw;
+    box-sizing:border-box;
   }
-  .topbar-brand{order:1;flex:1;font-size:14px;}
+  .topbar-brand{order:1;flex:1;font-size:14px;min-width:0;}
   .topbar-spacer{display:none;}
   .week-nav{order:2;width:100%;justify-content:center;gap:10px;}
   .week-label{min-width:0;font-size:13px;font-weight:700;}
-  .week-dots,.topbar-total{display:none;}
+  .week-dots,.topbar-total,#syncStatus{display:none;}
 
   /* subtitle */
   .week-sub{padding:8px 16px;flex-wrap:wrap;gap:6px;}
@@ -611,6 +640,9 @@ body{
   <div class="mobile-posts" id="mobilePosts"></div>
 </div>
 
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
 <!-- ELA IDEAS -->
 <div class="ela-section" id="elaSection">
   <div class="ela-header" onclick="toggleEla()">
@@ -637,21 +669,37 @@ body{
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+// ── TOAST ──
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2000);
+}
+
 // ── SUPABASE ──
-const SUPABASE_URL = 'https://ibszyymqkkhevjlmbyjb.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlic3p5eW1xa2toZXZqbG1ieWpiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ1NTE1NDIsImV4cCI6MjEwMDEyNzU0Mn0._cFO9Cu_cGiYMLDSEc-ZehDH_VYgY1bhkgUtO8wRx3Q';
-const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+let sb = null;
+try {
+  sb = window.supabase.createClient(
+    'https://ibszyymqkkhevjlmbyjb.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlic3p5eW1xa2toZXZqbG1ieWpiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ1NTE1NDIsImV4cCI6MjEwMDEyNzU0Mn0._cFO9Cu_cGiYMLDSEc-ZehDH_VYgY1bhkgUtO8wRx3Q'
+  );
+} catch(e) { console.warn('Supabase niedostępny:', e); }
 
 function setSyncStatus(state) {
   const el = document.getElementById('syncStatus');
   if (!el) return;
-  if (state === 'ok')  { el.textContent = '● zsynchronizowano'; el.style.color = '#7EB898'; }
-  if (state === 'err') { el.textContent = '○ tylko lokalnie';   el.style.color = 'rgba(255,255,255,.4)'; }
-  if (state === 'saving') { el.textContent = '↑ zapisywanie…';  el.style.color = 'rgba(255,255,255,.6)'; }
+  if (state === 'ok')     { el.textContent = '● zsynchronizowano'; el.style.color = '#7EB898'; }
+  if (state === 'err')    { el.textContent = '○ tylko lokalnie';   el.style.color = 'rgba(255,255,255,.4)'; }
+  if (state === 'saving') { el.textContent = '↑ zapisywanie…';     el.style.color = 'rgba(255,255,255,.6)'; }
 }
 
 async function syncFromSupabase() {
+  if (!sb) return;
   try {
     const { data, error } = await sb.from('fs_notes').select('key, value');
     if (error) throw error;
@@ -663,6 +711,7 @@ async function syncFromSupabase() {
 }
 
 async function pushNote(key, value) {
+  if (!sb) return;
   setSyncStatus('saving');
   try {
     const { error } = await sb.from('fs_notes').upsert({ key, value });
@@ -1003,6 +1052,7 @@ function saveNote(ta,key,toggleBtn){
   toggleBtn.innerHTML=`
     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
     ${hasNote?'Notatki Eli ('+len+'zn.)':'Notatki Eli'}`;
+  showToast('✓ Zapisano!');
   pushNote(key, ta.value);
 }
 
@@ -1027,6 +1077,7 @@ function saveEla(ta){
   localStorage.setItem(key,ta.value);
   const len=ta.value.length;
   document.getElementById('elaCharCount').textContent=len>0?len+' znaków':'';
+  showToast('✓ Zapisano!');
   pushNote(key, ta.value);
 }
 
