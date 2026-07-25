@@ -116,9 +116,22 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
 .post-card{
   background:var(--surface);border:1px solid var(--border);
   border-radius:10px;padding:12px;margin-bottom:8px;
-  width:100%;
+  width:100%;transition:border-color .15s,background .15s;
 }
+.post-card.scheduled{border-color:var(--i-col);border-width:1.5px;background:var(--i-bg);}
 .post-header{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px;}
+.sched-toggle{
+  display:flex;align-items:center;gap:5px;margin-left:auto;flex-shrink:0;
+  font-size:10.5px;font-weight:700;letter-spacing:.02em;
+  padding:3px 9px;border-radius:99px;cursor:pointer;
+  border:1px solid var(--border2);background:var(--surface);color:var(--sub);
+  transition:all .15s;-webkit-tap-highlight-color:transparent;touch-action:manipulation;
+  font-family:inherit;
+}
+.sched-toggle svg{flex-shrink:0;}
+.sched-toggle .box{width:12px;height:12px;border-radius:3px;border:1.5px solid var(--border2);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.sched-toggle.on{background:var(--i-bg);border-color:var(--i-col);color:var(--i-col);}
+.sched-toggle.on .box{background:var(--i-col);border-color:var(--i-col);}
 .post-time{font-size:11px;color:var(--sub);font-variant-numeric:tabular-nums;}
 .post-title{
   font-size:13px;line-height:1.45;color:var(--text);font-weight:500;
@@ -423,6 +436,7 @@ function sL(s){return s==='Approved'?'✓ Zatwierdzone':s==='Needs Revision'?'�
 function gL(g){return{wizerunkowe:'wizerunek',angażujące:'angażowanie',rekrutacja:'rekrutacja',udostępnialne:'udostępnianie'}[g]||'';}
 function nk(wi,d,m,pi){return`fs_note_w${wi}_${m}${d}_p${pi}`;}
 function ek(wi){return`fs_ela_w${wi}`;}
+function sk(wi,d,m,pi){return`fs_sched_w${wi}_${m}${d}_p${pi}`;}
 
 /* ── STATE ── */
 let curWeek=0;
@@ -433,12 +447,18 @@ function card(wi,d,pi,post){
   const key=nk(wi,d.date,d.month,pi);
   const sv=localStorage.getItem(key)||'';
   const hn=sv.length>0;
+  const schedKey=sk(wi,d.date,d.month,pi);
+  const isSched=localStorage.getItem(schedKey)==='1';
   const isEmpty=!post.title||post.title==='—';
   const gH=gL(post.goal)?`<span class="meta-goal">${gL(post.goal)}</span>`:'';
-  return`<div class="post-card">
+  return`<div class="post-card${isSched?' scheduled':''}">
     <div class="post-header">
       ${post.time?`<span class="post-time">${post.time}</span>`:''}
       <span class="type-chip ${tC(post.type)}">${post.type}</span>
+      <button class="sched-toggle${isSched?' on':''}" onclick="toggleScheduled(this,'${schedKey}')">
+        <span class="box">${isSched?`<svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="4"><polyline points="20 6 9 17 4 12"/></svg>`:''}</span>
+        ${isSched?'Zaplanowano':'Zaplanuj'}
+      </button>
     </div>
     <div class="post-title${isEmpty?' empty':''}">${isEmpty?'(tytuł do ustalenia)':post.title}</div>
     <div class="post-meta">${gH}<span class="meta-status ${sC(post.status)}">${sL(post.status)}</span></div>
@@ -546,6 +566,15 @@ function saveNote(ta,key,btn){
   btn.innerHTML=`<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>${len?`Notatki Eli (${len}zn.)`:'Notatki Eli'}`;
   showToast('✓ Zapisano!');
   sbSave(key,ta.value);
+}
+function toggleScheduled(btn,key){
+  const nowOn=localStorage.getItem(key)!=='1';
+  localStorage.setItem(key,nowOn?'1':'0');
+  btn.classList.toggle('on',nowOn);
+  btn.closest('.post-card').classList.toggle('scheduled',nowOn);
+  btn.innerHTML=`<span class="box">${nowOn?`<svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="4"><polyline points="20 6 9 17 4 12"/></svg>`:''}</span>${nowOn?'Zaplanowano':'Zaplanuj'}`;
+  showToast(nowOn?'✓ Oznaczono jako zaplanowane':'Odznaczono');
+  sbSave(key,nowOn?'1':'0');
 }
 function toggleEla(){
   const body=document.getElementById('elaBody');
