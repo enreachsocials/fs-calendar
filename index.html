@@ -105,6 +105,7 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
 .tc-video   {background:var(--v-bg);color:var(--v-col);border-color:var(--v-br);}
 .tc-kampania{background:#FEF0E6;color:#B04010;border-color:#F0B888;}
 .tc-nagrywka{background:#F0EEFF;color:#4030A0;border-color:#B8A8F0;}
+.tc-event   {background:#FDEAEA;color:#C81E1E;border-color:#E88888;}
 .meta-status{font-size:10px;padding:1px 7px;border-radius:99px;font-weight:600;white-space:nowrap;}
 .ms-draft   {background:#F0F0EC;color:#7A7A70;}
 .ms-approved{background:#DCF8E8;color:#1A6A30;}
@@ -119,6 +120,7 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
   width:100%;transition:border-color .15s,background .15s;
 }
 .post-card.scheduled{border-color:var(--i-col);border-width:1.5px;background:var(--i-bg);}
+.post-card.event{border-color:#C81E1E;border-width:2px;background:#FDEAEA;}
 .post-header{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px;}
 .sched-toggle{
   display:flex;align-items:center;gap:5px;margin-left:auto;flex-shrink:0;
@@ -435,16 +437,20 @@ const NAGRYWKI=[
   {title:'Nagrywki Ela',type:'Nagrywka',date:10,month:8},
   {title:'Nagrywki Ela',type:'Nagrywka',date:13,month:8},
 ];
+const EVENTS=[
+  {title:'DNI OTWARTE',type:'Wydarzenie',date:13,month:8},
+];
 
 function dv(d,m){return m*100+d;}
 function extra(date,month){
   const v=dv(date,month),posts=[];
   CAMPAIGNS.forEach(c=>{if(v>=dv(c.from.d,c.from.m)&&v<=dv(c.to.d,c.to.m))posts.push({type:c.type,title:c.name,goal:'—',status:'Aktywna',time:''});});
   NAGRYWKI.forEach(n=>{if(n.date===date&&n.month===month)posts.push({type:n.type,title:n.title+(n.note?` (${n.note})`:''),goal:'—',status:'Draft',time:''});});
+  EVENTS.forEach(e=>{if(e.date===date&&e.month===month)posts.push({type:e.type,title:e.title,goal:'—',status:'Aktywna',time:''});});
   return posts;
 }
 
-function tC(t){return{Story:'tc-story',Image:'tc-image',Reel:'tc-reel',Video:'tc-video',Kampania:'tc-kampania',Nagrywka:'tc-nagrywka'}[t]||'tc-story';}
+function tC(t){return{Story:'tc-story',Image:'tc-image',Reel:'tc-reel',Video:'tc-video',Kampania:'tc-kampania',Nagrywka:'tc-nagrywka',Wydarzenie:'tc-event'}[t]||'tc-story';}
 function sC(s){return s==='Approved'?'ms-approved':s==='Needs Revision'?'ms-revision':s==='Aktywna'?'ms-aktywna':'ms-draft';}
 function sL(s){return s==='Approved'?'✓ Zatwierdzone':s==='Needs Revision'?'⚠ Do poprawki':s==='Aktywna'?'▶ Aktywna':'Draft';}
 function gL(g){return{wizerunkowe:'wizerunek',angażujące:'angażowanie',rekrutacja:'rekrutacja',udostępnialne:'udostępnianie'}[g]||'';}
@@ -465,7 +471,8 @@ function card(wi,d,pi,post){
   const isSched=localStorage.getItem(schedKey)==='1';
   const isEmpty=!post.title||post.title==='—';
   const gH=gL(post.goal)?`<span class="meta-goal">${gL(post.goal)}</span>`:'';
-  return`<div class="post-card${isSched?' scheduled':''}">
+  const isEvent=post.type==='Wydarzenie';
+  return`<div class="post-card${isSched?' scheduled':''}${isEvent?' event':''}">
     <div class="post-header">
       ${post.time?`<span class="post-time">${post.time}</span>`:''}
       <span class="type-chip ${tC(post.type)}">${post.type}</span>
