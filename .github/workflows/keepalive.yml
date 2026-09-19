@@ -1,0 +1,18 @@
+name: Supabase keepalive
+
+# Darmowy projekt Supabase wstrzymuje sie po 7 dniach bez aktywnosci.
+# To zadanie co 2 dni wysyla jedno lekkie zapytanie, zeby do tego nie doszlo.
+on:
+  schedule:
+    - cron: "17 6 */2 * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase
+        run: |
+          code=$(curl -s -o /dev/null -w "%{http_code}"             "https://ibszyymqkkhevjlmbyjb.supabase.co/rest/v1/fs_notes?select=key&limit=1"             -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlic3p5eW1xa2toZXZqbG1ieWpiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ1NTE1NDIsImV4cCI6MjEwMDEyNzU0Mn0._cFO9Cu_cGiYMLDSEc-ZehDH_VYgY1bhkgUtO8wRx3Q" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlic3p5eW1xa2toZXZqbG1ieWpiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ1NTE1NDIsImV4cCI6MjEwMDEyNzU0Mn0._cFO9Cu_cGiYMLDSEc-ZehDH_VYgY1bhkgUtO8wRx3Q")
+          echo "HTTP $code"
+          test "$code" = "200"
