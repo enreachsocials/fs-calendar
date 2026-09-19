@@ -191,6 +191,9 @@ select { appearance: none; background-image: linear-gradient(45deg, transparent 
 .slide .ctl button { flex: 1; border: 0; border-top: 1px solid var(--line); background: transparent; padding: 4px 0; font-size: 13px; }
 .slide .ctl button:hover:not(:disabled) { background: var(--ink); color: var(--bg); }
 .slide .ctl button:disabled { opacity: .3; cursor: default; }
+.badge.todo { background: transparent; border: 1px dashed var(--ink); color: var(--ink); }
+.todo-box { border: 1px dashed var(--ink); background: var(--surface); padding: 10px 14px; margin-top: 14px; font-size: 14px; }
+.skip-note { margin-left: 12px; }
 .rowbadges { display: flex; flex-direction: column; gap: 4px; align-items: flex-end; }
 .badge.meta-flag { background: var(--ink); color: var(--bg); }
 .mini.meta::before { content: "M"; flex: none; font-size: 9px; font-weight: 800; background: var(--ink); color: var(--bg); padding: 0 4px; line-height: 1.5; }

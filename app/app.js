@@ -347,7 +347,9 @@ function renderCalendar(client) {
 
   /* administrator: jednym kliknięciem wysyła szkice z bieżącego widoku klientowi do akceptacji */
   const draftIds = [...new Set(Object.entries(byDay).filter(([k]) => inRange(k)).flatMap(([, l]) => l)
-    .filter((p) => p.internal_status === 'draft' && REVIEWABLE.includes(p.kind)).map((p) => p.id))];
+    .filter((p) => p.internal_status === 'draft' && REVIEWABLE.includes(p.kind) && !p.to_finish).map((p) => p.id))];
+  const skippedN = new Set(Object.entries(byDay).filter(([k]) => inRange(k)).flatMap(([, l]) => l)
+    .filter((p) => p.internal_status === 'draft' && REVIEWABLE.includes(p.kind) && p.to_finish).map((p) => p.id)).size;
   let sendBtn = null;
   if (state.isAdmin && draftIds.length) {
     let armed = false;
@@ -367,7 +369,8 @@ function renderCalendar(client) {
       onclick: () => { if (state.view !== k) { setView(k); showCalendar(client); } }, text: label })),
     h('button', { class: 'seg today-btn', onclick: () => { state.cur = new Date(); showCalendar(client); }, text: 'Dziś' }),
     state.isAdmin ? h('button', { class: 'btn small add-btn', onclick: () => openEditor(client, null, dIso(now)), text: '+ Dodaj publikację' }) : null,
-    sendBtn);
+    sendBtn,
+    state.isAdmin && skippedN ? h('span', { class: 'meta skip-note', text: `✎ ${skippedN} do skończenia – nie zostaną wysłane` }) : null);
 
   const filters = h('div', { class: 'filters', role: 'group', 'aria-label': 'Filtr typów' },
     h('button', { class: `chip ${state.filters.size === KIND_ORDER.length ? 'on' : ''}`, onclick: () => { state.filters = new Set(KIND_ORDER); renderCalendar(client); }, text: 'Wszystko' }),
@@ -386,7 +389,8 @@ function renderCalendar(client) {
     h('span', null, h('i', { class: 'lg-pending' }), 'do akceptacji'),
     h('span', null, h('i', { class: 'lg-ok' }), 'zaakceptowane'),
     h('span', null, h('i', { class: 'lg-warn' }), 'prośba o zmiany'),
-    state.isAdmin ? h('span', null, h('i', { class: 'lg-meta' }), 'M = zaplanowane w Meta') : null);
+    state.isAdmin ? h('span', null, h('i', { class: 'lg-meta' }), 'M = zaplanowane w Meta') : null,
+    state.isAdmin ? h('span', { text: '✎ = do skończenia' }) : null);
 
   const notice = h('div', { class: 'notice', role: 'note' }, h('span', { class: 'excl', 'aria-hidden': 'true', text: '!' }), h('span', { text: NOTICE_24H }));
 
@@ -406,7 +410,7 @@ function renderCalendar(client) {
         disabled: !inMonth, 'aria-label': `${dt.getDate()} ${MONTHS_GEN[dt.getMonth()]}, publikacji: ${list.length}`,
         onclick: () => openDay(client, key),
       }, h('span', { class: 'num', text: dt.getDate() }),
-        list.slice(0, 3).map((p) => h('div', { class: `mini k-${p.kind} ${state.isAdmin && p.meta_scheduled ? 'meta' : ''} rv-${p.internal_status === 'draft' ? 'draft' : REVIEWABLE.includes(p.kind) ? p.review_status : 'none'}` }, h('span', { text: p.title }))),
+        list.slice(0, 3).map((p) => h('div', { class: `mini k-${p.kind} ${state.isAdmin && p.meta_scheduled ? 'meta' : ''} rv-${p.internal_status === 'draft' ? 'draft' : REVIEWABLE.includes(p.kind) ? p.review_status : 'none'}` }, h('span', { text: (state.isAdmin && p.to_finish ? '✎ ' : '') + p.title }))),
         list.length > 3 ? h('div', { class: 'more', text: `+${list.length - 3} więcej` }) : null,
         list.length ? h('div', { class: 'dots' }, list.slice(0, 8).map((p) => h('i', { class: `k-${p.kind}` }))) : null));
     }
@@ -446,12 +450,16 @@ function postRow(client, p) {
         p.end_date ? h('span', { text: `${fmtLong(p.publish_date)} – ${fmtLong(p.end_date)}` }) : null,
         n ? h('span', { text: `${n} ${n === 1 ? 'slajd' : 'slajdów'}` }) : null,
         p.goal ? h('span', { text: GOALS[p.goal] }) : null)),
-    h('div', { class: 'rowbadges' }, reviewBadge(p), metaBadge(p)));
+    h('div', { class: 'rowbadges' }, reviewBadge(p), metaBadge(p), todoBadge(p)));
 }
 
 function timeRange(p) {
   if (!p.publish_time) return '';
   return p.end_time ? `${fmtTime(p.publish_time)}–${fmtTime(p.end_time)}` : fmtTime(p.publish_time);
+}
+
+function todoBadge(p) {
+  return state.isAdmin && p.to_finish ? h('span', { class: 'badge todo', title: p.to_finish_note || '', text: '✎ Do skończenia' }) : null;
 }
 
 function metaBadge(p) {
@@ -523,14 +531,24 @@ function renderPost(client, p, images, comments) {
     h('h2', { text: p.title }),
     h('div', { class: 'row' },
       h('span', { class: 'meta', text: `${fmtLong(p.publish_date)}${timeRange(p) ? `, ${timeRange(p)}` : ''}` }),
-      reviewBadge(p), metaBadge(p), p.goal ? h('span', { class: 'badge', text: GOALS[p.goal] }) : null,
+      reviewBadge(p), metaBadge(p), todoBadge(p), p.goal ? h('span', { class: 'badge', text: GOALS[p.goal] }) : null,
       state.isAdmin ? h('button', { class: 'btn ghost small', onclick: () => openEditor(client, p), text: 'Edytuj' }) : null,
       state.isAdmin ? h('button', { class: 'btn ghost small', text: p.meta_scheduled ? 'Zdejmij oznaczenie Meta' : 'Oznacz: zaplanowane w Meta', onclick: async (e) => {
         e.currentTarget.disabled = true;
         const { error } = await sb.from('posts').update({ meta_scheduled: !p.meta_scheduled }).eq('id', p.id);
         if (error) { toast('Nie udało się zapisać'); e.currentTarget.disabled = false; return; }
         await loadPosts(client); renderCalendar(client); closeModal(); openPost(client, p.id);
+      } }) : null,
+      state.isAdmin ? h('button', { class: 'btn ghost small', text: p.to_finish ? 'Oznacz jako skończone' : 'Oznacz: do skończenia', onclick: async (e) => {
+        e.currentTarget.disabled = true;
+        const { error } = await sb.from('posts').update(p.to_finish ? { to_finish: false, to_finish_note: null } : { to_finish: true }).eq('id', p.id);
+        if (error) { toast('Nie udało się zapisać'); e.currentTarget.disabled = false; return; }
+        await loadPosts(client); renderCalendar(client); closeModal(); openPost(client, p.id);
       } }) : null));
+
+  if (state.isAdmin && p.to_finish) {
+    kids.push(h('div', { class: 'todo-box' }, h('b', { text: '✎ Do skończenia' }), p.to_finish_note ? `: ${p.to_finish_note}` : ''));
+  }
 
   if (images.length) {
     let i = 0;
@@ -667,6 +685,9 @@ async function openEditor(client, p, presetDate) {
   const linkIn = h('input', { type: 'url', placeholder: 'https://drive.google.com/…' }); linkIn.value = d.video_url || '';
   const statusSel = selectEl(STATUS_OPTS, d.internal_status);
   const metaCb = h('input', { type: 'checkbox', id: 'ed-meta' }); metaCb.checked = !!d.meta_scheduled;
+  const todoCb = h('input', { type: 'checkbox', id: 'ed-todo' }); todoCb.checked = !!d.to_finish;
+  const todoNote = h('input', { type: 'text', maxlength: '200', placeholder: 'Czego brakuje? (np. brak copy)' }); todoNote.value = d.to_finish_note || '';
+  const fTodo = h('div', { class: 'field' }, h('label', { class: 'check', for: 'ed-todo' }, todoCb, 'Do skończenia (widoczne tylko dla Ciebie)'), todoNote);
   const fMeta = h('div', { class: 'field' }, h('label', { class: 'check', for: 'ed-meta' }, metaCb, 'Zaplanowane w Meta (FB / IG)'));
   const msg = h('div', { class: 'err', role: 'alert' });
 
@@ -724,7 +745,7 @@ async function openEditor(client, p, presetDate) {
     h('div', { class: 'grid2' }, field('Data', dateIn, 'ed-date'), fTime, fEnd),
     fGoal, mediaSec, fLink, fCap,
     field('Status', statusSel, 'ed-status'),
-    fMeta,
+    fMeta, fTodo,
     msg, h('div', { class: 'actions' }, saveBtn, cancelBtn));
 
   if (!isNew) {
@@ -760,6 +781,8 @@ async function openEditor(client, p, presetDate) {
       goal: (r.media || r.link) ? (goalSel.value || null) : null,
       internal_status: statusSel.value,
       meta_scheduled: metaCb.checked,
+      to_finish: todoCb.checked,
+      to_finish_note: todoCb.checked ? (todoNote.value.trim() || null) : null,
     };
     const lock = (on) => box.querySelectorAll('button, input, select, textarea').forEach((el) => { el.disabled = on; });
     lock(true); saveBtn.textContent = 'Zapisywanie…';
