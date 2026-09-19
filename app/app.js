@@ -18,6 +18,7 @@ const KINDS = {
   event:     { label: 'Wydarzenie', plural: 'Wydarzenia' },
 };
 const HIDDEN_KINDS = ['campaign'];                                   // kampanie – na razie wyłączone
+const KIND_SHORT = { post: 'POST', story: 'STORY', reel: 'ROLKA', video: 'WIDEO', campaign: 'KAMPANIA', recording: 'NAGRYWKA', event: 'WYDARZENIE' };
 const KIND_ORDER = Object.keys(KINDS).filter((k) => !HIDDEN_KINDS.includes(k));
 const REVIEWABLE = ['post', 'story', 'reel', 'video'];              // nagrywki i wydarzenia to sama informacja
 const EDIT_KINDS = ['post', 'story', 'reel', 'video', 'recording', 'event'];
@@ -410,7 +411,13 @@ function renderCalendar(client) {
         disabled: !inMonth, 'aria-label': `${dt.getDate()} ${MONTHS_GEN[dt.getMonth()]}, publikacji: ${list.length}`,
         onclick: () => openDay(client, key),
       }, h('span', { class: 'num', text: dt.getDate() }),
-        list.slice(0, 3).map((p) => h('div', { class: `mini k-${p.kind} ${state.isAdmin && p.meta_scheduled ? 'meta' : ''} rv-${p.internal_status === 'draft' ? 'draft' : REVIEWABLE.includes(p.kind) ? p.review_status : 'none'}` }, h('span', { text: (state.isAdmin && p.to_finish ? '✎ ' : '') + p.title }))),
+        list.slice(0, 3).map((p) => h('div', { class: `mini k-${p.kind} rv-${p.internal_status === 'draft' ? 'draft' : REVIEWABLE.includes(p.kind) ? p.review_status : 'none'}`, title: `${KINDS[p.kind].label}: ${p.title}` },
+          h('div', { class: 'mrow' },
+            h('span', { class: 'mtag', text: KIND_SHORT[p.kind] }),
+            p.publish_time ? h('span', { class: 'mtime', text: fmtTime(p.publish_time) }) : null,
+            state.isAdmin && p.meta_scheduled ? h('span', { class: 'mflag', text: 'M' }) : null,
+            state.isAdmin && p.internal_status === 'draft' ? h('span', { class: 'mdraft', text: 'szkic' }) : null),
+          h('span', { class: 'mt', text: (state.isAdmin && p.to_finish ? '✎ ' : '') + p.title }))),
         list.length > 3 ? h('div', { class: 'more', text: `+${list.length - 3} więcej` }) : null,
         list.length ? h('div', { class: 'dots' }, list.slice(0, 8).map((p) => h('i', { class: `k-${p.kind}` }))) : null));
     }

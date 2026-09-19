@@ -27,12 +27,12 @@
   --warn: #8a6216;
   --warn-bg: #ecdcab;
   --t-post: #221f1b;
-  --t-story: #a67c4e;
+  --t-story: #8f6a3c;
   --t-reel: #6a4e38;
-  --t-video: #77795f;
+  --t-video: #666a52;
   --t-campaign: #6a4a66;
-  --t-recording: #6f727a;
-  --t-event: #a88a2c;
+  --t-recording: #5d616a;
+  --t-event: #8a6f1c;
   --grot: "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
   --serif: "Playfair Display", "Bodoni MT", Didot, Georgia, serif;
   --radius: 2px;
@@ -148,13 +148,17 @@ main { max-width: 1240px; margin: 0 auto; padding: 34px 24px 90px; }
 .cell.today .num { background: var(--ink); color: var(--bg); }
 .cell:hover:not(.out) { background: var(--sand); }
 .num { font-size: 12px; font-weight: 800; width: 24px; height: 24px; display: grid; place-items: center; border-radius: 50%; }
-.mini { display: flex; align-items: center; gap: 6px; font-size: 11.5px; line-height: 1.3; border-left: 3px solid var(--c); padding: 2px 0 2px 6px; background: var(--bg); overflow: hidden; }
-.mini span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.mini::after { content: ""; width: 7px; height: 7px; border-radius: 50%; margin: 0 6px 0 auto; flex: none; background: var(--rv, transparent); }
+.mini { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 3px; font-size: 11.5px; line-height: 1.25; border-left: 4px solid var(--c); padding: 4px 18px 4px 6px; background: var(--bg); overflow: hidden; width: 100%; }
+.mini .mrow { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.mini .mtag { background: var(--c); color: var(--bg); font-size: 9px; font-weight: 800; letter-spacing: .08em; padding: 1px 5px; line-height: 1.4; }
+.mini .mtime { font-size: 10px; color: var(--muted); }
+.mini .mflag { background: var(--ink); color: var(--bg); font-size: 9px; font-weight: 800; padding: 1px 4px; line-height: 1.4; }
+.mini .mdraft { font-size: 9px; font-style: italic; color: var(--muted); border: 1px dashed var(--faint); padding: 0 4px; line-height: 1.4; }
+.mini .mt { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word; }
+.mini::after { content: ""; position: absolute; top: 6px; right: 6px; width: 8px; height: 8px; border-radius: 50%; background: var(--rv, transparent); }
 .mini.rv-pending { --rv: var(--pending); }
 .mini.rv-approved { --rv: var(--ok); }
 .mini.rv-changes { --rv: var(--warn); }
-.mini.rv-draft { border-left-style: dashed; }
 .dots { display: none; flex-wrap: wrap; gap: 3px; justify-content: center; }
 .dots i { width: 7px; height: 7px; border-radius: 50%; background: var(--c); }
 .viewbar { display: flex; flex-wrap: wrap; align-items: center; margin-top: 22px; }
@@ -196,7 +200,6 @@ select { appearance: none; background-image: linear-gradient(45deg, transparent 
 .skip-note { margin-left: 12px; }
 .rowbadges { display: flex; flex-direction: column; gap: 4px; align-items: flex-end; }
 .badge.meta-flag { background: var(--ink); color: var(--bg); }
-.mini.meta::before { content: "M"; flex: none; font-size: 9px; font-weight: 800; background: var(--ink); color: var(--bg); padding: 0 4px; line-height: 1.5; }
 .lg-meta { background: var(--ink); border-radius: 2px; }
 input[type=checkbox] { width: 18px; height: 18px; padding: 0; accent-color: var(--ink); }
 .check { display: flex; align-items: center; gap: 10px; font-style: normal; color: var(--ink); font-size: 14px; margin: 0; }
