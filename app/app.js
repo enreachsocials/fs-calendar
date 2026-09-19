@@ -385,7 +385,8 @@ function renderCalendar(client) {
   const legend = h('div', { class: 'legend' },
     h('span', null, h('i', { class: 'lg-pending' }), 'do akceptacji'),
     h('span', null, h('i', { class: 'lg-ok' }), 'zaakceptowane'),
-    h('span', null, h('i', { class: 'lg-warn' }), 'prośba o zmiany'));
+    h('span', null, h('i', { class: 'lg-warn' }), 'prośba o zmiany'),
+    state.isAdmin ? h('span', null, h('i', { class: 'lg-meta' }), 'M = zaplanowane w Meta') : null);
 
   const notice = h('div', { class: 'notice', role: 'note' }, h('span', { class: 'excl', 'aria-hidden': 'true', text: '!' }), h('span', { text: NOTICE_24H }));
 
@@ -405,7 +406,7 @@ function renderCalendar(client) {
         disabled: !inMonth, 'aria-label': `${dt.getDate()} ${MONTHS_GEN[dt.getMonth()]}, publikacji: ${list.length}`,
         onclick: () => openDay(client, key),
       }, h('span', { class: 'num', text: dt.getDate() }),
-        list.slice(0, 3).map((p) => h('div', { class: `mini k-${p.kind} rv-${p.internal_status === 'draft' ? 'draft' : REVIEWABLE.includes(p.kind) ? p.review_status : 'none'}` }, h('span', { text: p.title }))),
+        list.slice(0, 3).map((p) => h('div', { class: `mini k-${p.kind} ${state.isAdmin && p.meta_scheduled ? 'meta' : ''} rv-${p.internal_status === 'draft' ? 'draft' : REVIEWABLE.includes(p.kind) ? p.review_status : 'none'}` }, h('span', { text: p.title }))),
         list.length > 3 ? h('div', { class: 'more', text: `+${list.length - 3} więcej` }) : null,
         list.length ? h('div', { class: 'dots' }, list.slice(0, 8).map((p) => h('i', { class: `k-${p.kind}` }))) : null));
     }
@@ -445,12 +446,16 @@ function postRow(client, p) {
         p.end_date ? h('span', { text: `${fmtLong(p.publish_date)} – ${fmtLong(p.end_date)}` }) : null,
         n ? h('span', { text: `${n} ${n === 1 ? 'slajd' : 'slajdów'}` }) : null,
         p.goal ? h('span', { text: GOALS[p.goal] }) : null)),
-    reviewBadge(p));
+    h('div', { class: 'rowbadges' }, reviewBadge(p), metaBadge(p)));
 }
 
 function timeRange(p) {
   if (!p.publish_time) return '';
   return p.end_time ? `${fmtTime(p.publish_time)}–${fmtTime(p.end_time)}` : fmtTime(p.publish_time);
+}
+
+function metaBadge(p) {
+  return state.isAdmin && p.meta_scheduled ? h('span', { class: 'badge meta-flag', text: 'Zaplanowane w Meta' }) : null;
 }
 
 function reviewBadge(p) {
@@ -492,7 +497,7 @@ async function openPost(client, id) {
   const reviewable = REVIEWABLE.includes(p.kind);
   const [med, com] = await Promise.all([
     sb.from('post_media').select('id,path,position').eq('post_id', id).order('position'),
-    reviewable ? sb.from('comments').select('id,author_role,body,created_at').eq('post_id', id).order('created_at') : Promise.resolve({ data: [] }),
+    reviewable ? sb.from('comments').select('id,author_role,author_label,body,created_at').eq('post_id', id).order('created_at') : Promise.resolve({ data: [] }),
   ]);
   let images = [];
   const paths = (med.data || []).map((r) => r.path);
@@ -518,8 +523,14 @@ function renderPost(client, p, images, comments) {
     h('h2', { text: p.title }),
     h('div', { class: 'row' },
       h('span', { class: 'meta', text: `${fmtLong(p.publish_date)}${timeRange(p) ? `, ${timeRange(p)}` : ''}` }),
-      reviewBadge(p), p.goal ? h('span', { class: 'badge', text: GOALS[p.goal] }) : null,
-      state.isAdmin ? h('button', { class: 'btn ghost small', onclick: () => openEditor(client, p), text: 'Edytuj' }) : null));
+      reviewBadge(p), metaBadge(p), p.goal ? h('span', { class: 'badge', text: GOALS[p.goal] }) : null,
+      state.isAdmin ? h('button', { class: 'btn ghost small', onclick: () => openEditor(client, p), text: 'Edytuj' }) : null,
+      state.isAdmin ? h('button', { class: 'btn ghost small', text: p.meta_scheduled ? 'Zdejmij oznaczenie Meta' : 'Oznacz: zaplanowane w Meta', onclick: async (e) => {
+        e.currentTarget.disabled = true;
+        const { error } = await sb.from('posts').update({ meta_scheduled: !p.meta_scheduled }).eq('id', p.id);
+        if (error) { toast('Nie udało się zapisać'); e.currentTarget.disabled = false; return; }
+        await loadPosts(client); renderCalendar(client); closeModal(); openPost(client, p.id);
+      } }) : null));
 
   if (images.length) {
     let i = 0;
@@ -561,7 +572,7 @@ function renderPost(client, p, images, comments) {
     kids.push(h('div', { class: 'sect' }, h('h4', { text: 'Komentarze' }),
       comments.length
         ? comments.map((c) => h('div', { class: `comment ${c.author_role}` },
-            h('div', { class: 'who', text: `${c.author_role === 'admin' ? 'Agencja' : 'Klient'} · ${new Date(c.created_at).toLocaleString('pl-PL', { dateStyle: 'medium', timeStyle: 'short' })}` }),
+            h('div', { class: 'who', text: `${c.author_role === 'admin' ? 'Agencja' : (c.author_label || 'Klient')} · ${new Date(c.created_at).toLocaleString('pl-PL', { dateStyle: 'medium', timeStyle: 'short' })}` }),
             h('p', { text: c.body })))
         : h('p', { class: 'meta', text: 'Brak komentarzy.' })));
 
@@ -655,6 +666,8 @@ async function openEditor(client, p, presetDate) {
   const capIn = h('textarea', { maxlength: '5000', placeholder: 'Treść posta / opis do rolki…' }); capIn.value = d.caption || '';
   const linkIn = h('input', { type: 'url', placeholder: 'https://drive.google.com/…' }); linkIn.value = d.video_url || '';
   const statusSel = selectEl(STATUS_OPTS, d.internal_status);
+  const metaCb = h('input', { type: 'checkbox', id: 'ed-meta' }); metaCb.checked = !!d.meta_scheduled;
+  const fMeta = h('div', { class: 'field' }, h('label', { class: 'check', for: 'ed-meta' }, metaCb, 'Zaplanowane w Meta (FB / IG)'));
   const msg = h('div', { class: 'err', role: 'alert' });
 
   const fTime = field('Godzina', timeIn, 'ed-time');
@@ -711,6 +724,7 @@ async function openEditor(client, p, presetDate) {
     h('div', { class: 'grid2' }, field('Data', dateIn, 'ed-date'), fTime, fEnd),
     fGoal, mediaSec, fLink, fCap,
     field('Status', statusSel, 'ed-status'),
+    fMeta,
     msg, h('div', { class: 'actions' }, saveBtn, cancelBtn));
 
   if (!isNew) {
@@ -745,6 +759,7 @@ async function openEditor(client, p, presetDate) {
       video_url: r.link ? (link || null) : null,
       goal: (r.media || r.link) ? (goalSel.value || null) : null,
       internal_status: statusSel.value,
+      meta_scheduled: metaCb.checked,
     };
     const lock = (on) => box.querySelectorAll('button, input, select, textarea').forEach((el) => { el.disabled = on; });
     lock(true); saveBtn.textContent = 'Zapisywanie…';

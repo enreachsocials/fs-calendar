@@ -191,6 +191,12 @@ select { appearance: none; background-image: linear-gradient(45deg, transparent 
 .slide .ctl button { flex: 1; border: 0; border-top: 1px solid var(--line); background: transparent; padding: 4px 0; font-size: 13px; }
 .slide .ctl button:hover:not(:disabled) { background: var(--ink); color: var(--bg); }
 .slide .ctl button:disabled { opacity: .3; cursor: default; }
+.rowbadges { display: flex; flex-direction: column; gap: 4px; align-items: flex-end; }
+.badge.meta-flag { background: var(--ink); color: var(--bg); }
+.mini.meta::before { content: "M"; flex: none; font-size: 9px; font-weight: 800; background: var(--ink); color: var(--bg); padding: 0 4px; line-height: 1.5; }
+.lg-meta { background: var(--ink); border-radius: 2px; }
+input[type=checkbox] { width: 18px; height: 18px; padding: 0; accent-color: var(--ink); }
+.check { display: flex; align-items: center; gap: 10px; font-style: normal; color: var(--ink); font-size: 14px; margin: 0; }
 .legend { display: flex; gap: 18px; flex-wrap: wrap; font-size: 12px; font-style: italic; color: var(--muted); margin: -8px 0 18px; }
 .legend i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
 .lg-pending { background: var(--pending); } .lg-ok { background: var(--ok); } .lg-warn { background: var(--warn); }
